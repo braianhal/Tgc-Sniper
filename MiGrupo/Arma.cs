@@ -24,6 +24,8 @@ namespace AlumnoEjemplos.MiGrupo
             int anchoPantalla = GuiController.Instance.D3dDevice.Viewport.Width;
             int altoPantalla = GuiController.Instance.D3dDevice.Viewport.Height;
             armaSprite.Position = new Vector2(anchoPantalla/2,altoPantalla/2);
+            
         }
+  
     }
 }

@@ -6,3 +6,11 @@ C:\Users\Braianhal\Desktop\TgcViewer\AlumnoEjemplos\AlumnoEjemplos.pdb
 C:\Users\Braianhal\Desktop\TgcViewer\AlumnoEjemplos\TgcViewer.exe
 C:\Users\Braianhal\Desktop\TgcViewer\AlumnoEjemplos\Ionic.Zip.dll
 C:\Users\Braianhal\Desktop\TgcViewer\AlumnoEjemplos\TgcViewer.pdb
+C:\Users\Franco\Desktop\TGC\TgcViewer\AlumnoEjemplos\obj\Debug\AlumnoEjemplos.csprojResolveAssemblyReference.cache
+C:\Users\Franco\Desktop\TGC\TgcViewer\AlumnoEjemplos\obj\Debug\AlumnoEjemplos.dll
+C:\Users\Franco\Desktop\TGC\TgcViewer\AlumnoEjemplos\obj\Debug\AlumnoEjemplos.pdb
+C:\Users\Franco\Desktop\TGC\TgcViewer\AlumnoEjemplos\AlumnoEjemplos.dll
+C:\Users\Franco\Desktop\TGC\TgcViewer\AlumnoEjemplos\AlumnoEjemplos.pdb
+C:\Users\Franco\Desktop\TGC\TgcViewer\AlumnoEjemplos\TgcViewer.exe
+C:\Users\Franco\Desktop\TGC\TgcViewer\AlumnoEjemplos\Ionic.Zip.dll
+C:\Users\Franco\Desktop\TGC\TgcViewer\AlumnoEjemplos\TgcViewer.pdb
