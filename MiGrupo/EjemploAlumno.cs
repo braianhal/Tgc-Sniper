@@ -28,12 +28,14 @@ namespace AlumnoEjemplos.MiGrupo
         TgcBox bala;
         List<TgcMesh> meshes;
         Vector3 direccionBala;
+        TgcCamaraSniper camaraSniper;
         int nBalas = 0;
         struct dataBala
         {
             public TgcBox bala;
             public Vector3 direccionBala;
         };
+        Double ultimoTiro = 0;
         List<dataBala> balas = new List<dataBala>();
         /// <summary>
         /// Categoría a la que pertenece el ejemplo.
@@ -100,11 +102,12 @@ namespace AlumnoEjemplos.MiGrupo
                     meshes.Add(instance);
                 }
             }
-           // Cursor.Hide();
+           Cursor.Hide();
+           
 
            bala = TgcBox.fromSize(new Vector3(0,0,0), new Vector3(1f, 1f, 1f), Color.Red);
-            
 
+           GuiController.Instance.FpsCamera.RotateMouseButton = TgcD3dInput.MouseButtons.BUTTON_MIDDLE;
         }
 
 
@@ -130,24 +133,55 @@ namespace AlumnoEjemplos.MiGrupo
             }
            
             TgcD3dInput input = GuiController.Instance.D3dInput;
-            if (input.keyDown(Key.E))
+            if (input.buttonDown(TgcD3dInput.MouseButtons.BUTTON_LEFT))
             {
-
+                if (System.DateTime.Now.TimeOfDay.TotalMilliseconds - ultimoTiro > 500)
+                {
+                    ultimoTiro = System.DateTime.Now.TimeOfDay.TotalMilliseconds;
+                    dataBala datosDeBala;
+                    datosDeBala.bala = bala.clone();
+                    datosDeBala.bala.setPositionSize(GuiController.Instance.FpsCamera.Position, bala.Size);
+                    datosDeBala.direccionBala = GuiController.Instance.FpsCamera.getLookAt() - GuiController.Instance.FpsCamera.getPosition();
+                    balas.Add(datosDeBala);
+                    nBalas++;
+                }
+               /*rotacion arma con camara
+                * tmplookAt = camera.getLookAt() - camera.getPosition();
+                tmpRotationY = MathUtil.getDegree(tmplookAt.X, tmplookAt.Z) + initRotation.X;
+                weaponDrawing.setRotationY(tmpRotationY);
+                tmpRotationXZ = Vector3.Cross(tmplookAt, axisY);
+                weaponDrawing.setRotationXZ(tmpRotationXZ, initRotation.Y - (float)Math.Acos(Vector3.Dot(tmplookAt, axisY)));*/
                 
-                dataBala datosDeBala;
-                datosDeBala.bala = bala.clone();
-                datosDeBala.bala.setPositionSize(GuiController.Instance.FpsCamera.Position, bala.Size);
-                datosDeBala.direccionBala = GuiController.Instance.FpsCamera.getLookAt() - GuiController.Instance.FpsCamera.getPosition(); 
-                balas.Add(datosDeBala);
-                nBalas++;
             }
             foreach(dataBala datosBala in balas)
             {
-                datosBala.bala.move(datosBala.direccionBala * elapsedTime * 50);
+                datosBala.bala.move(datosBala.direccionBala * elapsedTime * 1000);
                 datosBala.bala.render();
             }
-
+            Control focusWindows = GuiController.Instance.D3dDevice.CreationParameters.FocusWindow;
+            Cursor.Position = focusWindows.PointToScreen(new Point(focusWindows.Width / 2, focusWindows.Height / 2));
             
+            
+            
+            
+            
+            
+            
+            float heading = 0.0f;
+            float pitch = 0.0f;
+
+
+            pitch = input.YposRelative * 2f;
+            heading = input.XposRelative * 2f;
+
+            //Solo rotar si se esta aprentando el boton del mouse configurado
+            GuiController.Instance.FpsCamera.rotate(heading, pitch, 0.0f);
+
+
+
+
+
+
         }
 
         /// <summary>
