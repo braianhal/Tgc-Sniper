@@ -12,8 +12,9 @@ namespace AlumnoEjemplos.MiGrupo
     class Arma
     {
         public TgcSprite armaSprite;
+        public TgcSprite miraSprite;
 
-        public Arma(string arma)
+        public Arma(string arma,string mira)
         {
             armaSprite = new TgcSprite();
 
@@ -24,8 +25,25 @@ namespace AlumnoEjemplos.MiGrupo
             int anchoPantalla = GuiController.Instance.D3dDevice.Viewport.Width;
             int altoPantalla = GuiController.Instance.D3dDevice.Viewport.Height;
             armaSprite.Position = new Vector2(anchoPantalla/2,altoPantalla/2);
-            
+
+
+            miraSprite = new TgcSprite();
+
+            string pathTexturaMira = GuiController.Instance.AlumnoEjemplosMediaDir + "Sprites\\" + mira + ".png";
+            miraSprite.Texture = TgcTexture.createTexture(pathTexturaMira);
+
+            miraSprite.Position = new Vector2(anchoPantalla / 2 - miraSprite.Texture.Width / 2, altoPantalla / 2 - miraSprite.Texture.Height / 2);
+
+
         }
-  
+
+
+        public void actualizar()
+        {
+            GuiController.Instance.Drawer2D.beginDrawSprite();
+            armaSprite.render();
+            miraSprite.render();
+            GuiController.Instance.Drawer2D.endDrawSprite();
+        }
     }
 }

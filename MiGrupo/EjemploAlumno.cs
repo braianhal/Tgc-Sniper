@@ -26,8 +26,9 @@ namespace AlumnoEjemplos.MiGrupo
         SkyBoxSniper skyBox;
         CamaraSniper camara;
         TgcBox bala;
-        List<TgcMesh> meshes;
         Vector3 direccionBala;
+        List<Enemigo> enemigos = new List<Enemigo>();
+        int cantidadEnemigos = 20;
         int nBalas = 0;
         struct dataBala
         {
@@ -78,11 +79,11 @@ namespace AlumnoEjemplos.MiGrupo
             camara.setCamera(new Vector3(0, 5, 0), new Vector3(1, 0, 0));
             GuiController.Instance.CurrentCamera = camara;
 
-            piso = Mapa.nuevoPiso(new Vector2(1000, 1000), "pasto");
+            piso = Mapa.nuevoPiso(new Vector2(2000, 2000), "pasto");
 
             skyBox = new SkyBoxSniper(10000, "Mar");
 
-            arma = new Arma("counter");
+            arma = new Arma("counter","mira");
 
             //Cargar modelo del arbol original
             TgcScene scene = loader.loadSceneFromFile(GuiController.Instance.ExamplesMediaDir + "MeshCreator\\Meshes\\Vegetacion\\Pino\\Pino-TgcScene.xml");
@@ -92,26 +93,22 @@ namespace AlumnoEjemplos.MiGrupo
             int rows = 5;
             int cols = 6;
             float offset = 100;
-            meshes = new List<TgcMesh>();
-            for (int i = 0; i < rows; i++)
-            {
-                for (int j = 0; j < cols; j++)
-                {
-                    //Crear instancia de modelo
-                    TgcMesh instance = arbolOriginal.createMeshInstance(arbolOriginal.Name + i + "_" + j);
-
-                    //Desplazarlo
-                    instance.move(i * offset, 0, j * offset);
-
-                    meshes.Add(instance);
-                }
-            }
            Cursor.Hide();
            
 
            bala = TgcBox.fromSize(new Vector3(0,0,0), new Vector3(1f, 1f, 1f), Color.Red);
 
-           GuiController.Instance.FpsCamera.RotateMouseButton = TgcD3dInput.MouseButtons.BUTTON_MIDDLE;
+           //Creando enemigos
+           for (int i = 0; i < cantidadEnemigos; i++)
+           {
+               float xAleatorio =  (float)(Randomizar.Instance.NextDouble() * 2000-1000);
+               float yAleatorio =  (float)(Randomizar.Instance.NextDouble() * 2000-1000);
+               enemigos.Add(new Enemigo(new Vector3(xAleatorio, 5, yAleatorio)));
+           }
+
+            
+            
+            GuiController.Instance.FpsCamera.RotateMouseButton = TgcD3dInput.MouseButtons.BUTTON_MIDDLE;
         }
 
 
@@ -123,18 +120,11 @@ namespace AlumnoEjemplos.MiGrupo
         /// <param name="elapsedTime">Tiempo en segundos transcurridos desde el último frame</param>
         public override void render(float elapsedTime)
         {
-            
-            GuiController.Instance.Drawer2D.beginDrawSprite();
-            arma.armaSprite.render();
-            GuiController.Instance.Drawer2D.endDrawSprite();
+
+            arma.actualizar();
             piso.render();
             skyBox.render();
 
-            //Renderizar instancias
-            foreach (TgcMesh mesh in meshes)
-            {
-                mesh.render();
-            }
            
             TgcD3dInput input = GuiController.Instance.D3dInput;
             if (input.buttonDown(TgcD3dInput.MouseButtons.BUTTON_LEFT))
@@ -164,6 +154,12 @@ namespace AlumnoEjemplos.MiGrupo
             }
             Control focusWindows = GuiController.Instance.D3dDevice.CreationParameters.FocusWindow;
             Cursor.Position = focusWindows.PointToScreen(new Point(focusWindows.Width / 2, focusWindows.Height / 2));
+
+
+            foreach (Enemigo enemigo in enemigos)
+            {
+                enemigo.actualizar(GuiController.Instance.CurrentCamera.getPosition(),elapsedTime);
+            }
 
 
         }
