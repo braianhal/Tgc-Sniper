@@ -24,11 +24,10 @@ namespace AlumnoEjemplos.MiGrupo
         TgcBox piso;
         TgcMesh arbolOriginal;
         SkyBoxSniper skyBox;
-        TgcFpsCamera camara;
+        CamaraSniper camara;
         TgcBox bala;
         List<TgcMesh> meshes;
         Vector3 direccionBala;
-        TgcCamaraSniper camaraSniper;
         int nBalas = 0;
         struct dataBala
         {
@@ -71,8 +70,13 @@ namespace AlumnoEjemplos.MiGrupo
         {   
             //Device d3dDevice = GuiController.Instance.D3dDevice;
             TgcSceneLoader loader = new TgcSceneLoader();
-            
-            CamaraSniper.nuevaCamara(camara, 5, 50);
+
+            camara = new CamaraSniper();
+            camara.Enable = true;
+            camara.MovementSpeed = 50f;
+            camara.JumpSpeed = 0;
+            camara.setCamera(new Vector3(0, 5, 0), new Vector3(1, 0, 0));
+            GuiController.Instance.CurrentCamera = camara;
 
             piso = Mapa.nuevoPiso(new Vector2(1000, 1000), "pasto");
 
@@ -140,8 +144,8 @@ namespace AlumnoEjemplos.MiGrupo
                     ultimoTiro = System.DateTime.Now.TimeOfDay.TotalMilliseconds;
                     dataBala datosDeBala;
                     datosDeBala.bala = bala.clone();
-                    datosDeBala.bala.setPositionSize(GuiController.Instance.FpsCamera.Position, bala.Size);
-                    datosDeBala.direccionBala = GuiController.Instance.FpsCamera.getLookAt() - GuiController.Instance.FpsCamera.getPosition();
+                    datosDeBala.bala.setPositionSize(GuiController.Instance.CurrentCamera.getPosition(), bala.Size);
+                    datosDeBala.direccionBala = GuiController.Instance.CurrentCamera.getLookAt() - GuiController.Instance.CurrentCamera.getPosition();
                     balas.Add(datosDeBala);
                     nBalas++;
                 }
@@ -160,26 +164,6 @@ namespace AlumnoEjemplos.MiGrupo
             }
             Control focusWindows = GuiController.Instance.D3dDevice.CreationParameters.FocusWindow;
             Cursor.Position = focusWindows.PointToScreen(new Point(focusWindows.Width / 2, focusWindows.Height / 2));
-            
-            
-            
-            
-            
-            
-            
-            float heading = 0.0f;
-            float pitch = 0.0f;
-
-
-            pitch = input.YposRelative * 2f;
-            heading = input.XposRelative * 2f;
-
-            //Solo rotar si se esta aprentando el boton del mouse configurado
-            GuiController.Instance.FpsCamera.rotate(heading, pitch, 0.0f);
-
-
-
-
 
 
         }
