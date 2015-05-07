@@ -30,7 +30,7 @@ namespace AlumnoEjemplos.MiGrupo
         List<Enemigo> enemigos = new List<Enemigo>();
         int cantidadEnemigos = 20;
         int nBalas = 0;
-        struct dataBala
+        public struct dataBala
         {
             public TgcBox bala;
             public Vector3 direccionBala;
@@ -85,14 +85,6 @@ namespace AlumnoEjemplos.MiGrupo
 
             arma = new Arma("counter","mira");
 
-            //Cargar modelo del arbol original
-            TgcScene scene = loader.loadSceneFromFile(GuiController.Instance.ExamplesMediaDir + "MeshCreator\\Meshes\\Vegetacion\\Pino\\Pino-TgcScene.xml");
-            arbolOriginal = scene.Meshes[0];
-
-            //Crear varias instancias del modelo original, pero sin volver a cargar el modelo entero cada vez
-            int rows = 5;
-            int cols = 6;
-            float offset = 100;
            Cursor.Hide();
            
 
@@ -158,9 +150,15 @@ namespace AlumnoEjemplos.MiGrupo
 
             foreach (Enemigo enemigo in enemigos)
             {
-                enemigo.actualizar(GuiController.Instance.CurrentCamera.getPosition(),elapsedTime);
+                enemigo.actualizar(GuiController.Instance.CurrentCamera.getPosition(),elapsedTime,balas);
             }
-
+           /* if (TgcCollisionUtils.testSphereSphere(boundingBall, collisionableList[j].boundingBall))
+            {
+                colisionador.cantColisiones--;
+                vecAux = colisionador.direction;
+                colisionador.direction = collisionableList[j].direction;
+                collisionableList[j].direction = vecAux;
+            }*/
 
         }
 
@@ -173,7 +171,6 @@ namespace AlumnoEjemplos.MiGrupo
 
             piso.dispose();
             skyBox.dispose();
-            arbolOriginal.dispose();
         }
 
     }
