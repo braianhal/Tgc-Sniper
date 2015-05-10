@@ -351,7 +351,7 @@ namespace AlumnoEjemplos.MiGrupo
                     (0.5f * acceleration * elapsedTimeSec * elapsedTimeSec);
                 }
                 else
-                {
+                {   //modificado*******************************************
                     displacement = (currentVelocity * elapsedTimeSec);
                 }
 

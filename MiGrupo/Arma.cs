@@ -13,6 +13,7 @@ namespace AlumnoEjemplos.MiGrupo
     {
         public TgcSprite armaSprite;
         public TgcSprite miraSprite;
+        bool eliminado = false;
 
         public Arma(string arma,string mira)
         {
@@ -40,10 +41,18 @@ namespace AlumnoEjemplos.MiGrupo
 
         public void actualizar()
         {
-            GuiController.Instance.Drawer2D.beginDrawSprite();
-            armaSprite.render();
-            miraSprite.render();
-            GuiController.Instance.Drawer2D.endDrawSprite();
+            if (!eliminado)
+            {
+                GuiController.Instance.Drawer2D.beginDrawSprite();
+                armaSprite.render();
+                miraSprite.render();
+                GuiController.Instance.Drawer2D.endDrawSprite();
+            }
+        }
+
+        internal void eliminar()
+        {
+            eliminado = true;
         }
     }
 }

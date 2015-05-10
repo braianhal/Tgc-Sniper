@@ -13,13 +13,16 @@ namespace AlumnoEjemplos.MiGrupo
 {
     class Enemigo
     {
-        TgcBox enemigo;
+        TgcMesh enemigo;
         Boolean mostrar = true;
         float velocidad = 30f;
         float velocidadAngular = 1f;
-        public Enemigo(Vector3 posicion)
+        public bool eliminado = false;
+        Double ultimoAtaque = 0;
+        List<AlumnoEjemplos.MiGrupo.EjemploAlumno.dataBala> balasAEliminar = new List<EjemploAlumno.dataBala>();
+        public Enemigo(Vector3 posicion,TgcMesh meshEnemigo)
         {
-           /* //Paths para archivo XML de la malla
+           /*//Paths para archivo XML de la malla
             string pathMesh = GuiController.Instance.ExamplesMediaDir + "KeyframeAnimations\\Robot\\Robot-TgcKeyFrameMesh.xml";
 
             //Path para carpeta de texturas de la malla
@@ -50,35 +53,57 @@ namespace AlumnoEjemplos.MiGrupo
             enemigo = loader.loadMeshAndAnimationsFromFile(pathMesh, mediaPath, animationsPath);
 
             enemigo.playAnimation("Correr", true);*/
-            enemigo = TgcBox.fromSize(posicion, new Vector3(10f, 10f, 20f), Color.Blue);
+            //enemigo = TgcBox.fromSize(posicion, new Vector3(10f, 10f, 20f), Color.Blue);
+
+            enemigo = meshEnemigo.clone("");
+            enemigo.Position = posicion;
+            
         }
 
 
-        public void actualizar(Vector3 posicionPersonaje,float elapsedTime,List<AlumnoEjemplos.MiGrupo.EjemploAlumno.dataBala> balas)
-        {   
+        public void actualizar(Vector3 posicionPersonaje,float elapsedTime,List<AlumnoEjemplos.MiGrupo.EjemploAlumno.dataBala> balas,Personaje personaje)
+        {
+            balasAEliminar = new List<EjemploAlumno.dataBala>(); 
             Vector3 direccionMovimiento = posicionPersonaje-enemigo.Position;
+            direccionMovimiento.Y = 0;
             direccionMovimiento.Normalize();
             enemigo.move(direccionMovimiento*velocidad*elapsedTime);
-
+            /*Vector2 posicionEnemigo = new Vector2(enemigo.Position.X, enemigo.Position.Z);
+            Vector2 posicion2DPersonaje = new Vector2(posicionPersonaje.X, posicionPersonaje.Z);
+            float angulo = (Vector2.Dot(posicionEnemigo, posicion2DPersonaje)) / (posicionEnemigo.Length() * posicion2DPersonaje.Length());
+            enemigo.rotateY(angulo);*/
             foreach (AlumnoEjemplos.MiGrupo.EjemploAlumno.dataBala bala in balas)
             {
                 TgcCollisionUtils.BoxBoxResult result = TgcCollisionUtils.classifyBoxBox(enemigo.BoundingBox, bala.bala.BoundingBox);
                 if (result == TgcCollisionUtils.BoxBoxResult.Adentro || result == TgcCollisionUtils.BoxBoxResult.Atravesando)
-                {
-                    
-                    mostrar = false;
+                {  
+                    eliminado = true;
+                    balasAEliminar.Add(bala);
                 }
             }
-
+            balas.RemoveAll(seDebeEliminar);
             //enemigo.Rotation = new Vector3((float)(Math.PI / 2), 0, 0);
-            if (mostrar)
-            {
-                enemigo.render();
-            }
-            
+            atacarAPersonaje(personaje);
+            enemigo.render();
+            enemigo.BoundingBox.render();
         }
-    
-    }
 
+        private void atacarAPersonaje(Personaje personaje)
+        {   
+            float distanciaAPersonaje = (enemigo.Position - GuiController.Instance.CurrentCamera.getPosition()).Length();
+            if (distanciaAPersonaje < 7)
+            {
+                if (System.DateTime.Now.TimeOfDay.TotalMilliseconds - ultimoAtaque > 500)
+                {
+                    ultimoAtaque = System.DateTime.Now.TimeOfDay.TotalMilliseconds;
+                    personaje.sacarVida();
+                }
+            }
+        }
+
+        private bool seDebeEliminar(AlumnoEjemplos.MiGrupo.EjemploAlumno.dataBala bala){
+            return balasAEliminar.Contains(bala);
+        }
+    }
 
 }

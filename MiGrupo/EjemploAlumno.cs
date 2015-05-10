@@ -20,6 +20,7 @@ namespace AlumnoEjemplos.MiGrupo
     /// </summary>
     public class EjemploAlumno : TgcExample
     {
+        Personaje personaje;
         Arma arma;
         TgcBox piso;
         TgcMesh arbolOriginal;
@@ -37,6 +38,7 @@ namespace AlumnoEjemplos.MiGrupo
         };
         Double ultimoTiro = 0;
         List<dataBala> balas = new List<dataBala>();
+        Vector3 posicionAnteriorCamara;
         /// <summary>
         /// Categoría a la que pertenece el ejemplo.
         /// Influye en donde se va a haber en el árbol de la derecha de la pantalla.
@@ -68,9 +70,14 @@ namespace AlumnoEjemplos.MiGrupo
         /// Borrar todo lo que no haga falta
         /// </summary>
         public override void init()
-        {   
+        {
             //Device d3dDevice = GuiController.Instance.D3dDevice;
             TgcSceneLoader loader = new TgcSceneLoader();
+
+            //Enemigos
+            TgcScene scene = loader.loadSceneFromFile(GuiController.Instance.AlumnoEjemplosMediaDir + "Modelos\\Robot\\Robot-TgcScene.xml");
+            TgcMesh enemigo = scene.Meshes[0];
+            enemigo.Scale = new Vector3(0.1f, 0.1f, 0.1f);
 
             camara = new CamaraSniper();
             camara.Enable = true;
@@ -85,7 +92,7 @@ namespace AlumnoEjemplos.MiGrupo
 
             arma = new Arma("counter","mira");
 
-           Cursor.Hide();
+             Cursor.Hide();
            
 
            bala = TgcBox.fromSize(new Vector3(0,0,0), new Vector3(1f, 1f, 1f), Color.Red);
@@ -95,12 +102,14 @@ namespace AlumnoEjemplos.MiGrupo
            {
                float xAleatorio =  (float)(Randomizar.Instance.NextDouble() * 2000-1000);
                float yAleatorio =  (float)(Randomizar.Instance.NextDouble() * 2000-1000);
-               enemigos.Add(new Enemigo(new Vector3(xAleatorio, 5, yAleatorio)));
+               enemigos.Add(new Enemigo(new Vector3(xAleatorio, 0, yAleatorio),enemigo));
            }
 
             
             
             GuiController.Instance.FpsCamera.RotateMouseButton = TgcD3dInput.MouseButtons.BUTTON_MIDDLE;
+
+            personaje = new Personaje(arma);
         }
 
 
@@ -119,7 +128,7 @@ namespace AlumnoEjemplos.MiGrupo
 
            
             TgcD3dInput input = GuiController.Instance.D3dInput;
-            if (input.buttonDown(TgcD3dInput.MouseButtons.BUTTON_LEFT))
+            if (input.buttonDown(TgcD3dInput.MouseButtons.BUTTON_LEFT) && !personaje.muerto())
             {
                 if (System.DateTime.Now.TimeOfDay.TotalMilliseconds - ultimoTiro > 500)
                 {
@@ -147,11 +156,12 @@ namespace AlumnoEjemplos.MiGrupo
             Control focusWindows = GuiController.Instance.D3dDevice.CreationParameters.FocusWindow;
             Cursor.Position = focusWindows.PointToScreen(new Point(focusWindows.Width / 2, focusWindows.Height / 2));
 
-
             foreach (Enemigo enemigo in enemigos)
             {
-                enemigo.actualizar(GuiController.Instance.CurrentCamera.getPosition(),elapsedTime,balas);
+                enemigo.actualizar(GuiController.Instance.CurrentCamera.getPosition(), elapsedTime, balas,personaje);
             }
+            enemigos.RemoveAll(enemigoElminable);
+            balas.RemoveAll(estaLejos);
            /* if (TgcCollisionUtils.testSphereSphere(boundingBall, collisionableList[j].boundingBall))
             {
                 colisionador.cantColisiones--;
@@ -159,8 +169,11 @@ namespace AlumnoEjemplos.MiGrupo
                 colisionador.direction = collisionableList[j].direction;
                 collisionableList[j].direction = vecAux;
             }*/
-
+            personaje.actualizar();
         }
+
+        
+
 
         /// <summary>
         /// Método que se llama cuando termina la ejecución del ejemplo.
@@ -168,9 +181,20 @@ namespace AlumnoEjemplos.MiGrupo
         /// </summary>
         public override void close()
         {
-
             piso.dispose();
             skyBox.dispose();
+        }
+
+
+        private bool enemigoElminable(Enemigo enemigo)
+        {
+            return enemigo.eliminado;
+        }
+
+        private bool estaLejos(dataBala bala)
+        {   
+            float distanciaAPersonaje = (bala.bala.Position - GuiController.Instance.CurrentCamera.getPosition()).Length();
+            return distanciaAPersonaje > 3000;
         }
 
     }
