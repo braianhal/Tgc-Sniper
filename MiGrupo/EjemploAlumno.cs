@@ -38,7 +38,9 @@ namespace AlumnoEjemplos.MiGrupo
         };
         Double ultimoTiro = 0;
         List<dataBala> balas = new List<dataBala>();
-        Vector3 posicionAnteriorCamara;
+        
+        List<TgcMesh> meshes;
+        TgcScene[] meshesVegetacion = new TgcScene[4];
         /// <summary>
         /// Categoría a la que pertenece el ejemplo.
         /// Influye en donde se va a haber en el árbol de la derecha de la pantalla.
@@ -83,7 +85,7 @@ namespace AlumnoEjemplos.MiGrupo
             camara.Enable = true;
             camara.MovementSpeed = 50f;
             camara.JumpSpeed = 0;
-            camara.setCamera(new Vector3(0, 5, 0), new Vector3(1, 0, 0));
+            camara.setCamera(new Vector3(0, 10, 0), new Vector3(1, 0, 0));
             GuiController.Instance.CurrentCamera = camara;
 
             piso = Mapa.nuevoPiso(new Vector2(2000, 2000), "pasto");
@@ -110,6 +112,13 @@ namespace AlumnoEjemplos.MiGrupo
             GuiController.Instance.FpsCamera.RotateMouseButton = TgcD3dInput.MouseButtons.BUTTON_MIDDLE;
 
             personaje = new Personaje(arma);
+
+            //Cargar modelo de vegetacion
+            meshesVegetacion[0] = loader.loadSceneFromFile(GuiController.Instance.ExamplesMediaDir + "MeshCreator\\Meshes\\Vegetacion\\Planta\\Planta-TgcScene.xml");
+            meshesVegetacion[1] = loader.loadSceneFromFile(GuiController.Instance.ExamplesMediaDir + "MeshCreator\\Meshes\\Vegetacion\\Palmera3\\Palmera3-TgcScene.xml");
+            meshesVegetacion[2] = loader.loadSceneFromFile(GuiController.Instance.ExamplesMediaDir + "MeshCreator\\Meshes\\Vegetacion\\Roca\\Roca-TgcScene.xml");
+            meshesVegetacion[3] = loader.loadSceneFromFile(GuiController.Instance.ExamplesMediaDir + "MeshCreator\\Meshes\\Vegetacion\\Pasto\\Pasto-TgcScene.xml");
+            createVegetation();
         }
 
 
@@ -125,6 +134,11 @@ namespace AlumnoEjemplos.MiGrupo
             arma.actualizar();
             piso.render();
             skyBox.render();
+
+            foreach (TgcMesh planta in meshes)
+            {
+                planta.render();
+            }
 
            
             TgcD3dInput input = GuiController.Instance.D3dInput;
@@ -195,6 +209,20 @@ namespace AlumnoEjemplos.MiGrupo
         {   
             float distanciaAPersonaje = (bala.bala.Position - GuiController.Instance.CurrentCamera.getPosition()).Length();
             return distanciaAPersonaje > 3000;
+        }
+
+        private void createVegetation()
+        {
+            meshes = new List<TgcMesh>();
+            for (int i = 0; i < 500; i++)
+            { //Se puede aumentar el numero pero si no se utiliza la grilla regular decae mucho la performance
+                int numero = (int)(Randomizar.Instance.NextDouble() * 4);
+                TgcMesh planta = (TgcMesh)meshesVegetacion[numero].Meshes[0].clone("");
+                planta.move(new Vector3(-1000 + (float)Randomizar.Instance.NextDouble() * 2000, 0, -1000 + (float)Randomizar.Instance.NextDouble() * 2000));
+
+                meshes.Add(planta);
+
+            }
         }
 
     }

@@ -91,7 +91,7 @@ namespace AlumnoEjemplos.MiGrupo
         private void atacarAPersonaje(Personaje personaje)
         {   
             float distanciaAPersonaje = (enemigo.Position - GuiController.Instance.CurrentCamera.getPosition()).Length();
-            if (distanciaAPersonaje < 7)
+            if (distanciaAPersonaje < 12)
             {
                 if (System.DateTime.Now.TimeOfDay.TotalMilliseconds - ultimoAtaque > 500)
                 {
