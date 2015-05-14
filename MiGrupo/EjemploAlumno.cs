@@ -39,7 +39,7 @@ namespace AlumnoEjemplos.MiGrupo
         Double ultimoZoom = 0;
         List<dataBala> balas = new List<dataBala>();
         
-        List<TgcMesh> meshes;
+        public List<TgcMesh> meshes;
         TgcScene[] meshesVegetacion = new TgcScene[4];
         /// <summary>
         /// Categoría a la que pertenece el ejemplo.
@@ -73,10 +73,10 @@ namespace AlumnoEjemplos.MiGrupo
         /// </summary>
         public override void init()
         {
-            
-            
-            
-            
+
+
+
+
             TgcSceneLoader loader = new TgcSceneLoader();
 
             //Enemigos
@@ -95,23 +95,23 @@ namespace AlumnoEjemplos.MiGrupo
 
             skyBox = new SkyBoxSniper(10000, "Mar");
 
-            arma = new Arma("counter","mira");
+            arma = new Arma("counter", "mira");
 
-             Cursor.Hide();
-           
+            Cursor.Hide();
 
-           bala = TgcBox.fromSize(new Vector3(0,0,0), new Vector3(1f, 1f, 1f), Color.Red);
 
-           //Creando enemigos
-           for (int i = 0; i < cantidadEnemigos; i++)
-           {
-               float xAleatorio =  (float)(Randomizar.Instance.NextDouble() * 2000-1000);
-               float yAleatorio =  (float)(Randomizar.Instance.NextDouble() * 2000-1000);
-               enemigos.Add(new Enemigo(new Vector3(xAleatorio, 0, yAleatorio),enemigo));
-           }
+            bala = TgcBox.fromSize(new Vector3(0, 0, 0), new Vector3(1f, 1f, 1f), Color.Red);
 
-            
-            
+            //Creando enemigos
+            for (int i = 0; i < cantidadEnemigos; i++)
+            {
+                float xAleatorio = (float)(Randomizar.Instance.NextDouble() * 2000 - 1000);
+                float yAleatorio = (float)(Randomizar.Instance.NextDouble() * 2000 - 1000);
+                enemigos.Add(new Enemigo(new Vector3(xAleatorio, 0, yAleatorio), enemigo));
+            }
+
+
+
             GuiController.Instance.FpsCamera.RotateMouseButton = TgcD3dInput.MouseButtons.BUTTON_MIDDLE;
 
             personaje = new Personaje(arma);
@@ -122,10 +122,29 @@ namespace AlumnoEjemplos.MiGrupo
             meshesVegetacion[2] = loader.loadSceneFromFile(GuiController.Instance.ExamplesMediaDir + "MeshCreator\\Meshes\\Vegetacion\\Roca\\Roca-TgcScene.xml");
             meshesVegetacion[3] = loader.loadSceneFromFile(GuiController.Instance.ExamplesMediaDir + "MeshCreator\\Meshes\\Vegetacion\\Pasto\\Pasto-TgcScene.xml");
             createVegetation();
-        
-        
-        
+
+
+            Vector3 lastPos = enemigo.Position;
+            bool collide = false;
+            foreach (Enemigo unEnemigo in enemigos)
+            {
+                TgcCollisionUtils.BoxBoxResult result = TgcCollisionUtils.classifyBoxBox(unEnemigo.enemigo.BoundingBox, enemigo.BoundingBox);
+                if (result == TgcCollisionUtils.BoxBoxResult.Adentro || result == TgcCollisionUtils.BoxBoxResult.Atravesando)
+                {
+                    collide = true;
+
+                }
+
+            }
+
+            //Si hubo colision, restaurar la posicion anterior
+            if (collide)
+            {
+                enemigo.Position = lastPos;
+                collide = false;
+            }
         }
+
 
 
         /// <summary>
@@ -195,7 +214,7 @@ namespace AlumnoEjemplos.MiGrupo
 
             foreach (Enemigo enemigo in enemigos)
             {
-                enemigo.actualizar(GuiController.Instance.CurrentCamera.getPosition(), elapsedTime, balas,personaje);
+                enemigo.actualizar(GuiController.Instance.CurrentCamera.getPosition(), elapsedTime, balas,personaje,meshes);
             }
             enemigos.RemoveAll(enemigoElminable);
             balas.RemoveAll(estaLejos);
@@ -207,6 +226,8 @@ namespace AlumnoEjemplos.MiGrupo
                 collisionableList[j].direction = vecAux;
             }*/
             personaje.actualizar();
+
+
         }
 
         
@@ -242,6 +263,27 @@ namespace AlumnoEjemplos.MiGrupo
                 int numero = (int)(Randomizar.Instance.NextDouble() * 4);
                 TgcMesh planta = (TgcMesh)meshesVegetacion[numero].Meshes[0].clone("");
                 planta.move(new Vector3(-1000 + (float)Randomizar.Instance.NextDouble() * 2000, 0, -1000 + (float)Randomizar.Instance.NextDouble() * 2000));
+
+                if (numero == 1)
+                {
+                    planta.BoundingBox.scaleTranslate(planta.Position, new Vector3(0.04f, 1, 0.04f));
+                }
+
+                if (numero == 2)
+                {
+                    planta.BoundingBox.scaleTranslate(planta.Position, new Vector3(0.8f, 1, 0.8f));
+                }
+
+                if (numero == 3)
+                {
+                    planta.BoundingBox.scaleTranslate(planta.Position, new Vector3(0f, 0, 0f));
+                }
+
+                if (numero == 0)
+                {
+                    planta.BoundingBox.scaleTranslate(planta.Position, new Vector3(0.01f, 1, 0.01f));
+                }
+
 
                 meshes.Add(planta);
 
