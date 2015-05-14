@@ -13,11 +13,12 @@ namespace AlumnoEjemplos.MiGrupo
 {
     class Enemigo
     {
-        TgcMesh enemigo;
+        public TgcMesh enemigo;
         Boolean mostrar = true;
         float velocidad = 30f;
         float velocidadAngular = 1f;
         public bool eliminado = false;
+        bool collide = false;
         Double ultimoAtaque = 0;
         List<AlumnoEjemplos.MiGrupo.EjemploAlumno.dataBala> balasAEliminar = new List<EjemploAlumno.dataBala>();
         public Enemigo(Vector3 posicion,TgcMesh meshEnemigo)
@@ -60,13 +61,14 @@ namespace AlumnoEjemplos.MiGrupo
             
         }
 
-
-        public void actualizar(Vector3 posicionPersonaje,float elapsedTime,List<AlumnoEjemplos.MiGrupo.EjemploAlumno.dataBala> balas,Personaje personaje)
+        public void actualizar(Vector3 posicionPersonaje,float elapsedTime,List<AlumnoEjemplos.MiGrupo.EjemploAlumno.dataBala> balas,Personaje personaje, List<TgcMesh> meshes)
         {
+            Vector3 lastPos = enemigo.Position;
             balasAEliminar = new List<EjemploAlumno.dataBala>(); 
-            Vector3 direccionMovimiento = posicionPersonaje-enemigo.Position;
+            Vector3 direccionMovimiento = posicionPersonaje-lastPos;
             direccionMovimiento.Y = 0;
             direccionMovimiento.Normalize();
+        
             enemigo.move(direccionMovimiento*velocidad*elapsedTime);
             /*Vector2 posicionEnemigo = new Vector2(enemigo.Position.X, enemigo.Position.Z);
             Vector2 posicion2DPersonaje = new Vector2(posicionPersonaje.X, posicionPersonaje.Z);
@@ -81,6 +83,27 @@ namespace AlumnoEjemplos.MiGrupo
                     balasAEliminar.Add(bala);
                 }
             }
+            //Detectar colisiones de BoundingBox utilizando herramienta TgcCollisionUtils
+         
+            
+            foreach (TgcMesh planta in meshes)
+            {
+                TgcCollisionUtils.BoxBoxResult result = TgcCollisionUtils.classifyBoxBox(planta.BoundingBox, enemigo.BoundingBox);
+                if (result == TgcCollisionUtils.BoxBoxResult.Adentro || result == TgcCollisionUtils.BoxBoxResult.Atravesando)
+                {
+                    collide = true;
+                  
+                }
+               
+            }
+
+            //Si hubo colision, restaurar la posicion anterior
+            if (collide)
+            {
+                enemigo.Position = lastPos;
+                collide = false;
+            }
+            
             balas.RemoveAll(seDebeEliminar);
             //enemigo.Rotation = new Vector3((float)(Math.PI / 2), 0, 0);
             atacarAPersonaje(personaje);
