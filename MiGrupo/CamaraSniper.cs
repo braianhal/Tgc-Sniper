@@ -5,12 +5,14 @@ using System.Linq;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Microsoft.DirectX;
 using Microsoft.DirectX.Direct3D;
 using Microsoft.DirectX.DirectInput;
 using TgcViewer.Utils.TgcSceneLoader;
 using TgcViewer.Utils.Input;
 using TgcViewer;
+using TgcViewer.Utils.TgcGeometry;
+using TgcViewer.Utils;
+using System.Windows.Forms;
 
 
 namespace AlumnoEjemplos.MiGrupo
@@ -18,6 +20,8 @@ namespace AlumnoEjemplos.MiGrupo
 
     public class CamaraSniper : TgcCamera
     {
+        public float zoom = 1f;
+
         //Constantes de movimiento
         public const float DEFAULT_ROTATION_SPEED = 2f;
         public const float DEFAULT_MOVEMENT_SPEED = 100f;
@@ -639,7 +643,14 @@ namespace AlumnoEjemplos.MiGrupo
                 return;
             }
 
-            d3dDevice.Transform.View = viewMatrix;
+            /*Control panel3d;
+            public static float aspectRatio = -1f ;
+            this.panel3d = panel3d;
+            aspectRatio = (float)this.panel3d.Width / this.panel3d.Height;*/
+            d3dDevice.Transform.View = viewMatrix;// + Matrix.Identity;
+            d3dDevice.Transform.Projection =
+                Matrix.PerspectiveFovLH(Geometry.DegreeToRadian(45.0f)*zoom,
+                TgcD3dDevice.aspectRatio, 1f, 10000f);
         }
 
         /// <summary>
@@ -770,8 +781,6 @@ namespace AlumnoEjemplos.MiGrupo
                 TgcParserUtils.printFloat(eye.X) + "f, " + TgcParserUtils.printFloat(eye.Y) + "f, " + TgcParserUtils.printFloat(eye.Z) + "f), new Vector3(" +
                 TgcParserUtils.printFloat(lookAt.X) + "f, " + TgcParserUtils.printFloat(lookAt.Y) + "f, " + TgcParserUtils.printFloat(lookAt.Z) + "f));";
         }
-
-
 
     }
 

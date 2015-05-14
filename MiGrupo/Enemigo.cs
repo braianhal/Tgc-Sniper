@@ -13,10 +13,9 @@ namespace AlumnoEjemplos.MiGrupo
 {
     class Enemigo
     {
+        float anguloAnterior = (float)Math.PI / 2;
         TgcMesh enemigo;
-        Boolean mostrar = true;
         float velocidad = 30f;
-        float velocidadAngular = 1f;
         public bool eliminado = false;
         Double ultimoAtaque = 0;
         List<AlumnoEjemplos.MiGrupo.EjemploAlumno.dataBala> balasAEliminar = new List<EjemploAlumno.dataBala>();
@@ -68,10 +67,11 @@ namespace AlumnoEjemplos.MiGrupo
             direccionMovimiento.Y = 0;
             direccionMovimiento.Normalize();
             enemigo.move(direccionMovimiento*velocidad*elapsedTime);
-            /*Vector2 posicionEnemigo = new Vector2(enemigo.Position.X, enemigo.Position.Z);
-            Vector2 posicion2DPersonaje = new Vector2(posicionPersonaje.X, posicionPersonaje.Z);
-            float angulo = (Vector2.Dot(posicionEnemigo, posicion2DPersonaje)) / (posicionEnemigo.Length() * posicion2DPersonaje.Length());
-            enemigo.rotateY(angulo);*/
+            
+            float angulo = (float)Math.Atan2(enemigo.Position.Z - posicionPersonaje.Z, enemigo.Position.X - posicionPersonaje.X);
+            enemigo.rotateY(anguloAnterior-angulo);
+            anguloAnterior = angulo;
+            
             foreach (AlumnoEjemplos.MiGrupo.EjemploAlumno.dataBala bala in balas)
             {
                 TgcCollisionUtils.BoxBoxResult result = TgcCollisionUtils.classifyBoxBox(enemigo.BoundingBox, bala.bala.BoundingBox);

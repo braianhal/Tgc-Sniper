@@ -12,6 +12,7 @@ using TgcViewer.Utils.TgcGeometry;
 using TgcViewer.Utils.Input;
 using System.Windows.Forms;
 using Microsoft.DirectX.DirectInput;
+using TgcViewer.Utils;
 
 namespace AlumnoEjemplos.MiGrupo
 {
@@ -23,11 +24,9 @@ namespace AlumnoEjemplos.MiGrupo
         Personaje personaje;
         Arma arma;
         TgcBox piso;
-        TgcMesh arbolOriginal;
         SkyBoxSniper skyBox;
         CamaraSniper camara;
         TgcBox bala;
-        Vector3 direccionBala;
         List<Enemigo> enemigos = new List<Enemigo>();
         int cantidadEnemigos = 20;
         int nBalas = 0;
@@ -37,6 +36,7 @@ namespace AlumnoEjemplos.MiGrupo
             public Vector3 direccionBala;
         };
         Double ultimoTiro = 0;
+        Double ultimoZoom = 0;
         List<dataBala> balas = new List<dataBala>();
         
         List<TgcMesh> meshes;
@@ -73,7 +73,10 @@ namespace AlumnoEjemplos.MiGrupo
         /// </summary>
         public override void init()
         {
-            //Device d3dDevice = GuiController.Instance.D3dDevice;
+            
+            
+            
+            
             TgcSceneLoader loader = new TgcSceneLoader();
 
             //Enemigos
@@ -119,6 +122,9 @@ namespace AlumnoEjemplos.MiGrupo
             meshesVegetacion[2] = loader.loadSceneFromFile(GuiController.Instance.ExamplesMediaDir + "MeshCreator\\Meshes\\Vegetacion\\Roca\\Roca-TgcScene.xml");
             meshesVegetacion[3] = loader.loadSceneFromFile(GuiController.Instance.ExamplesMediaDir + "MeshCreator\\Meshes\\Vegetacion\\Pasto\\Pasto-TgcScene.xml");
             createVegetation();
+        
+        
+        
         }
 
 
@@ -130,7 +136,7 @@ namespace AlumnoEjemplos.MiGrupo
         /// <param name="elapsedTime">Tiempo en segundos transcurridos desde el último frame</param>
         public override void render(float elapsedTime)
         {
-
+            Microsoft.DirectX.Direct3D.Device d3dDevice = GuiController.Instance.D3dDevice;
             arma.actualizar();
             piso.render();
             skyBox.render();
@@ -162,9 +168,26 @@ namespace AlumnoEjemplos.MiGrupo
                 weaponDrawing.setRotationXZ(tmpRotationXZ, initRotation.Y - (float)Math.Acos(Vector3.Dot(tmplookAt, axisY)));*/
                 
             }
+            else if(input.buttonDown(TgcD3dInput.MouseButtons.BUTTON_RIGHT)){
+                if (System.DateTime.Now.TimeOfDay.TotalMilliseconds - ultimoZoom > 500)
+                {
+                    ultimoZoom = System.DateTime.Now.TimeOfDay.TotalMilliseconds;
+                    camara = (CamaraSniper)GuiController.Instance.CurrentCamera;
+                    if (camara.zoom == 1)
+                    {
+                        camara.zoom = 0.1f;
+                    }
+                    else
+                    {
+                        camara.zoom = 1f;
+                    }
+                    GuiController.Instance.CurrentCamera = camara;
+                }
+            }
             foreach(dataBala datosBala in balas)
             {
-                datosBala.bala.move(datosBala.direccionBala * elapsedTime * 1000);
+                datosBala.bala.move(datosBala.direccionBala * elapsedTime * 200f);
+                datosBala.bala.BoundingBox.render();
                 datosBala.bala.render();
             }
             Control focusWindows = GuiController.Instance.D3dDevice.CreationParameters.FocusWindow;

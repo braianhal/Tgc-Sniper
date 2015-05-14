@@ -14,9 +14,18 @@ namespace AlumnoEjemplos.MiGrupo
         public TgcSprite armaSprite;
         public TgcSprite miraSprite;
         bool eliminado = false;
+        TgcMesh armaMesh;
+        TgcMesh miraMesh;
 
         public Arma(string arma,string mira)
         {
+            TgcSceneLoader loader = new TgcSceneLoader();
+            TgcScene scene = loader.loadSceneFromFile(GuiController.Instance.AlumnoEjemplosMediaDir + "Modelos\\Sniper_Arma\\arma-TgcScene.xml");
+            armaMesh = scene.Meshes[1];
+            miraMesh = scene.Meshes[0];
+            armaMesh.Scale = new Vector3(10, 10, 10);
+            miraMesh.Scale = new Vector3(10, 10, 10);
+            
             armaSprite = new TgcSprite();
 
             string pathTexturaArma = GuiController.Instance.AlumnoEjemplosMediaDir + "Sprites\\" + arma + ".png";
@@ -43,6 +52,9 @@ namespace AlumnoEjemplos.MiGrupo
         {
             if (!eliminado)
             {
+                armaMesh.render();
+                miraMesh.render();
+                armaMesh.move(GuiController.Instance.CurrentCamera.getPosition() - armaMesh.Position);
                 GuiController.Instance.Drawer2D.beginDrawSprite();
                 armaSprite.render();
                 miraSprite.render();
