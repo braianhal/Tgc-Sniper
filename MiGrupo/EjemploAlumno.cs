@@ -107,14 +107,13 @@ namespace AlumnoEjemplos.MiGrupo
             {
                 float xAleatorio = (float)(Randomizar.Instance.NextDouble() * 2000 - 1000);
                 float yAleatorio = (float)(Randomizar.Instance.NextDouble() * 2000 - 1000);
-                enemigos.Add(new Enemigo(new Vector3(xAleatorio, 0, yAleatorio), enemigo));
+                enemigos.Add(new Enemigo(new Vector3(xAleatorio, 0, yAleatorio), enemigo,personaje));
             }
 
 
 
             GuiController.Instance.FpsCamera.RotateMouseButton = TgcD3dInput.MouseButtons.BUTTON_MIDDLE;
 
-            personaje = new Personaje(arma);
 
             //Cargar modelo de vegetacion
             meshesVegetacion[0] = loader.loadSceneFromFile(GuiController.Instance.ExamplesMediaDir + "MeshCreator\\Meshes\\Vegetacion\\Planta\\Planta-TgcScene.xml");
@@ -124,7 +123,7 @@ namespace AlumnoEjemplos.MiGrupo
             createVegetation();
 
 
-            Vector3 lastPos = enemigo.Position;
+            /*Vector3 lastPos = enemigo.Position;
             bool collide = false;
             foreach (Enemigo unEnemigo in enemigos)
             {
@@ -142,7 +141,8 @@ namespace AlumnoEjemplos.MiGrupo
             {
                 enemigo.Position = lastPos;
                 collide = false;
-            }
+            }*/
+            personaje = new Personaje(arma);
         }
 
 
@@ -190,6 +190,7 @@ namespace AlumnoEjemplos.MiGrupo
             else if(input.buttonDown(TgcD3dInput.MouseButtons.BUTTON_RIGHT)){
                 if (System.DateTime.Now.TimeOfDay.TotalMilliseconds - ultimoZoom > 500)
                 {
+                    arma.zoomActivado = !arma.zoomActivado;
                     ultimoZoom = System.DateTime.Now.TimeOfDay.TotalMilliseconds;
                     camara = (CamaraSniper)GuiController.Instance.CurrentCamera;
                     if (camara.zoom == 1)
@@ -204,7 +205,7 @@ namespace AlumnoEjemplos.MiGrupo
                 }
             }
             foreach(dataBala datosBala in balas)
-            {
+            {   
                 datosBala.bala.move(datosBala.direccionBala * elapsedTime * 200f);
                 datosBala.bala.BoundingBox.render();
                 datosBala.bala.render();
@@ -267,21 +268,25 @@ namespace AlumnoEjemplos.MiGrupo
                 if (numero == 1)
                 {
                     planta.BoundingBox.scaleTranslate(planta.Position, new Vector3(0.04f, 1, 0.04f));
+                    planta.Name = "palmera";
                 }
 
                 if (numero == 2)
                 {
                     planta.BoundingBox.scaleTranslate(planta.Position, new Vector3(0.8f, 1, 0.8f));
+                    planta.Name = "roca";
                 }
 
                 if (numero == 3)
                 {
                     planta.BoundingBox.scaleTranslate(planta.Position, new Vector3(0f, 0, 0f));
+                    planta.Name = "pasto";
                 }
 
                 if (numero == 0)
                 {
                     planta.BoundingBox.scaleTranslate(planta.Position, new Vector3(0.01f, 1, 0.01f));
+                    planta.Name = "planta";
                 }
 
 

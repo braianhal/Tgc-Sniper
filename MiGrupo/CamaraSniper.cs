@@ -392,7 +392,7 @@ namespace AlumnoEjemplos.MiGrupo
             }
         }
 
-        private void setPosition(Vector3 pos)
+        public void setPosition(Vector3 pos)
         {
             eye = pos;
             reconstructViewMatrix(false);

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using TgcViewer;
 using TgcViewer.Utils._2D;
+using TgcViewer.Utils.TgcGeometry;
 using TgcViewer.Utils.TgcSceneLoader;
 
 namespace AlumnoEjemplos.MiGrupo
@@ -15,20 +16,42 @@ namespace AlumnoEjemplos.MiGrupo
         int vida = 100;
         Arma arma;
         TgcText2d textoVida;
+        TgcText2d textoEnemigos;
+        TgcText2d textoFinJuego;
         TgcSprite atacadoSprite;
+        Vector3 ultimaPos = GuiController.Instance.CurrentCamera.getPosition();
+        int cantidadEnemigos = 20;
 
         public Personaje(Arma armaUsada)
         {
             arma = armaUsada;
-            
+
+            int anchoPantalla = GuiController.Instance.D3dDevice.Viewport.Width;
+            int altoPantalla = GuiController.Instance.D3dDevice.Viewport.Height;
+
             //Crear texto 2, especificando color, alineación, posición, tamaño y fuente.
             textoVida = new TgcText2d();
             textoVida.Text = vida.ToString();
             textoVida.Color = Color.Green;
-            textoVida.Align = TgcText2d.TextAlign.CENTER;
-            textoVida.Position = new Point(300, 100);
-            textoVida.Size = new Size(300, 100);
-            textoVida.changeFont(new System.Drawing.Font("TimesNewRoman", 25, FontStyle.Bold | FontStyle.Italic));
+            textoVida.Align = TgcText2d.TextAlign.LEFT;
+            textoVida.Position = new Point(10, altoPantalla - 30);
+            textoVida.changeFont(new System.Drawing.Font("TimesNewRoman", 25, FontStyle.Bold));
+
+            textoEnemigos = new TgcText2d();
+            textoEnemigos.Text = "Restantes: 20";
+            textoEnemigos.Color = Color.NavajoWhite;
+            textoEnemigos.Align = TgcText2d.TextAlign.RIGHT;
+            textoEnemigos.Position = new Point(0, 30);
+            textoEnemigos.changeFont(new System.Drawing.Font("TimesNewRoman", 25, FontStyle.Bold));
+
+            textoFinJuego = new TgcText2d();
+            textoFinJuego.Text = "VICTORIA";
+            textoFinJuego.Color = Color.MediumBlue;
+            textoFinJuego.Align = TgcText2d.TextAlign.CENTER;
+            textoFinJuego.Position = new Point(anchoPantalla/2, altoPantalla/2);
+            textoFinJuego.changeFont(new System.Drawing.Font("TimesNewRoman", 40, FontStyle.Bold));
+
+
 
             atacadoSprite = new TgcSprite();
             string pathTexturaAtacado = GuiController.Instance.AlumnoEjemplosMediaDir + "Sprites\\ataque.png";
@@ -73,12 +96,28 @@ namespace AlumnoEjemplos.MiGrupo
                 atacadoSprite.render();
             }
             textoVida.render();
+            if (cantidadEnemigos > 0)
+            {
+                textoEnemigos.render();
+            }
+            else
+            {
+                textoFinJuego.render();
+            }
             GuiController.Instance.Drawer2D.endDrawSprite();
+            
         }
 
         public bool muerto()
         {
             return vida == 0;
+        }
+
+        public void unEnemigoMenos()
+        {
+            cantidadEnemigos--;
+            textoEnemigos.Text = "Restantes: " + cantidadEnemigos.ToString();
+            
         }
     }
 }

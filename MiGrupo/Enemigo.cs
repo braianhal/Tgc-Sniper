@@ -14,15 +14,18 @@ namespace AlumnoEjemplos.MiGrupo
     class Enemigo
     {
         float anguloAnterior = (float)Math.PI / 2;
-        public TgcMesh enemigo;
-        float velocidad = 30f;
+        float velocidad = 50f;
         public bool eliminado = false;
         bool collide = false;
         Double ultimoAtaque = 0;
         List<AlumnoEjemplos.MiGrupo.EjemploAlumno.dataBala> balasAEliminar = new List<EjemploAlumno.dataBala>();
-        public Enemigo(Vector3 posicion,TgcMesh meshEnemigo)
+        Personaje personaje;
+        public TgcKeyFrameMesh enemigo;
+
+
+        public Enemigo(Vector3 posicion,TgcMesh meshEnemigo,Personaje elPersonaje)
         {
-           /*//Paths para archivo XML de la malla
+            //Paths para archivo XML de la malla
             string pathMesh = GuiController.Instance.ExamplesMediaDir + "KeyframeAnimations\\Robot\\Robot-TgcKeyFrameMesh.xml";
 
             //Path para carpeta de texturas de la malla
@@ -52,12 +55,13 @@ namespace AlumnoEjemplos.MiGrupo
             TgcKeyFrameLoader loader = new TgcKeyFrameLoader();
             enemigo = loader.loadMeshAndAnimationsFromFile(pathMesh, mediaPath, animationsPath);
 
-            enemigo.playAnimation("Correr", true);*/
+            enemigo.playAnimation("Correr", true);
             //enemigo = TgcBox.fromSize(posicion, new Vector3(10f, 10f, 20f), Color.Blue);
 
-            enemigo = meshEnemigo.clone("");
+           // enemigo = meshEnemigo.clone("");
             enemigo.Position = posicion;
-            
+            enemigo.Scale = new Vector3(0.1f, 0.1f, 0.1f);
+            personaje = elPersonaje;
         }
 
         public void actualizar(Vector3 posicionPersonaje,float elapsedTime,List<AlumnoEjemplos.MiGrupo.EjemploAlumno.dataBala> balas,Personaje personaje, List<TgcMesh> meshes)
@@ -80,6 +84,7 @@ namespace AlumnoEjemplos.MiGrupo
                 if (result == TgcCollisionUtils.BoxBoxResult.Adentro || result == TgcCollisionUtils.BoxBoxResult.Atravesando)
                 {  
                     eliminado = true;
+                    personaje.unEnemigoMenos();
                     balasAEliminar.Add(bala);
                 }
             }
@@ -107,8 +112,7 @@ namespace AlumnoEjemplos.MiGrupo
             balas.RemoveAll(seDebeEliminar);
             //enemigo.Rotation = new Vector3((float)(Math.PI / 2), 0, 0);
             atacarAPersonaje(personaje);
-            enemigo.render();
-            enemigo.BoundingBox.render();
+            enemigo.animateAndRender();
         }
 
         private void atacarAPersonaje(Personaje personaje)
@@ -120,6 +124,17 @@ namespace AlumnoEjemplos.MiGrupo
                 {
                     ultimoAtaque = System.DateTime.Now.TimeOfDay.TotalMilliseconds;
                     personaje.sacarVida();
+                    if (Randomizar.Instance.NextDouble() > 0.5f)
+                    {
+                        enemigo.playAnimation("Correr", true);
+                    }
+                    else if (Randomizar.Instance.NextDouble() > 0.5f)
+                    {
+                        enemigo.playAnimation("Pegar", true);
+                    }
+                    else{
+                        enemigo.playAnimation("Patear", true);
+                    }
                 }
             }
         }
