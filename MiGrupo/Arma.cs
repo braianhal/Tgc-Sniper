@@ -5,17 +5,17 @@ using System.Linq;
 using System.Text;
 using TgcViewer;
 using TgcViewer.Utils._2D;
+using TgcViewer.Utils.TgcGeometry;
 using TgcViewer.Utils.TgcSceneLoader;
 
 namespace AlumnoEjemplos.MiGrupo
 {
     class Arma
     {
-        public TgcSprite armaSprite;
         public TgcSprite miraSprite;
         public TgcSprite miraZoomSprite;
         bool eliminado = false;
-        //TgcMesh armaMesh;
+        public TgcMesh armaMesh;
         //TgcMesh miraMesh;
         public bool zoomActivado = false;
 
@@ -23,20 +23,12 @@ namespace AlumnoEjemplos.MiGrupo
         {
             TgcSceneLoader loader = new TgcSceneLoader();
             TgcScene scene = loader.loadSceneFromFile(GuiController.Instance.AlumnoEjemplosMediaDir + "Modelos\\Sniper_Arma\\arma-TgcScene.xml");
-           /* armaMesh = scene.Meshes[1];
-            miraMesh = scene.Meshes[0];
+            armaMesh = scene.Meshes[1];
             armaMesh.Scale = new Vector3(10, 10, 10);
-            miraMesh.Scale = new Vector3(10, 10, 10);*/
-            
-            armaSprite = new TgcSprite();
-            string pathTexturaArma = GuiController.Instance.AlumnoEjemplosMediaDir + "Sprites\\" + arma + ".png";
-            armaSprite.Texture = TgcTexture.createTexture(pathTexturaArma);
-            armaSprite.Scaling = new Vector2(0.7f, 0.75f);
+            armaMesh.Position = new Vector3(5, 0, 5);
+
             int anchoPantalla = GuiController.Instance.D3dDevice.Viewport.Width;
             int altoPantalla = GuiController.Instance.D3dDevice.Viewport.Height;
-            armaSprite.Position = new Vector2(anchoPantalla/2,altoPantalla/2);
-
-
             miraSprite = new TgcSprite();
             string pathTexturaMira = GuiController.Instance.AlumnoEjemplosMediaDir + "Sprites\\" + mira + ".png";
             miraSprite.Texture = TgcTexture.createTexture(pathTexturaMira);
@@ -57,15 +49,10 @@ namespace AlumnoEjemplos.MiGrupo
         {
             if (!eliminado)
             {
-                /*armaMesh.render();
-                miraMesh.render();
-                armaMesh.move(GuiController.Instance.CurrentCamera.getPosition() - armaMesh.Position);*/
                 GuiController.Instance.Drawer2D.beginDrawSprite();
                 if (!zoomActivado)
                 {
-                    armaSprite.render();
-                    miraSprite.render();
-                    
+                    miraSprite.render();  
                 }
                 else
                 {
@@ -73,11 +60,63 @@ namespace AlumnoEjemplos.MiGrupo
                 }
                 GuiController.Instance.Drawer2D.endDrawSprite();
             }
+            
         }
 
-        internal void eliminar()
+        public void eliminar()
         {
             eliminado = true;
+        }
+
+        public void disparar(Personaje personaje, List<Enemigo> enemigos,List<TgcMesh> objetos)
+        {
+            TgcRay disparo = new TgcRay(personaje.posicion(),personaje.direccionEnLaQueMira());
+            Enemigo enemigoQueRecibeDisparo = null;
+            Vector3 puntoImpacto;
+            Vector3 menorPuntoImpacto = new Vector3(10000,10000,10000);
+
+            foreach(Enemigo enemigo in enemigos){
+                if (TgcCollisionUtils.intersectRayAABB(disparo, enemigo.enemigo.BoundingBox, out puntoImpacto))
+                {   
+                    if (((puntoImpacto - (personaje.posicion())).Length()) < ((menorPuntoImpacto-(personaje.posicion())).Length()))
+                    {
+                        menorPuntoImpacto = puntoImpacto;
+                        enemigoQueRecibeDisparo = enemigo;
+                    }
+                }
+            }
+            foreach (TgcMesh objeto in objetos)
+            {
+                if (TgcCollisionUtils.intersectRayAABB(disparo, objeto.BoundingBox, out puntoImpacto))
+                {
+                    if (((puntoImpacto - (personaje.posicion())).Length()) < ((menorPuntoImpacto - (personaje.posicion())).Length()))
+                    {
+                        enemigoQueRecibeDisparo = null;
+                        break;
+                    }
+                }
+            }
+            if (enemigoQueRecibeDisparo != null)
+            {
+                personaje.unEnemigoMenos();
+                enemigos.Remove(enemigoQueRecibeDisparo);
+            }
+        }
+
+        internal void hacerZoom()
+        {
+            zoomActivado = !zoomActivado;
+
+            CamaraSniper camara = (CamaraSniper)GuiController.Instance.CurrentCamera;
+            if (camara.zoom == 1)
+            {
+                camara.zoom = 0.1f;
+            }
+            else
+            {
+                camara.zoom = 1f;
+            }
+            GuiController.Instance.CurrentCamera = camara;
         }
     }
 }

@@ -119,5 +119,14 @@ namespace AlumnoEjemplos.MiGrupo
             textoEnemigos.Text = "Restantes: " + cantidadEnemigos.ToString();
             
         }
+
+        public Vector3 posicion()
+        {
+            return GuiController.Instance.CurrentCamera.getPosition();
+        }
+        public Vector3 direccionEnLaQueMira()
+        {
+            return new Vector3(GuiController.Instance.Frustum.NearPlane.A, GuiController.Instance.Frustum.NearPlane.B, GuiController.Instance.Frustum.NearPlane.C);
+        }
     }
 }

@@ -19,6 +19,7 @@ namespace AlumnoEjemplos.MiGrupo
     public class CamaraSniper : TgcCamera
     {
         public float zoom = 1f;
+        private float limite = 999;
 
         //Constantes de movimiento
         public const float DEFAULT_ROTATION_SPEED = 2f;
@@ -374,8 +375,25 @@ namespace AlumnoEjemplos.MiGrupo
 
                 if (direction.Z == 0.0f && Math.Abs(currentVelocity.Z) < 1e-6f)
                     displacement.Z = 0.0f;
-
                 move(displacement.X, displacement.Y, displacement.Z);
+                
+                if (Position.X > limite)
+                {
+                    move(Position.X - limite, 0, 0);
+                }
+                else if (Position.X < -limite)
+                {
+                    move(Position.X + limite, 0, 0);
+                }
+                if (Position.Z > limite)
+                {
+                    move(0, 0, Position.Z - limite);
+                }
+                else if (Position.Z < -limite)
+                {
+                    move(0, 0, Position.Z + limite);
+                }
+                
             }
 
             // Continuously update the camera's velocity vector even if the camera

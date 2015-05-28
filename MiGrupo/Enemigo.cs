@@ -15,10 +15,8 @@ namespace AlumnoEjemplos.MiGrupo
     {
         float anguloAnterior = (float)Math.PI / 2;
         float velocidad = 50f;
-        public bool eliminado = false;
         bool collide = false;
         Double ultimoAtaque = 0;
-        List<AlumnoEjemplos.MiGrupo.EjemploAlumno.dataBala> balasAEliminar = new List<EjemploAlumno.dataBala>();
         Personaje personaje;
         public TgcKeyFrameMesh enemigo;
 
@@ -64,10 +62,10 @@ namespace AlumnoEjemplos.MiGrupo
             personaje = elPersonaje;
         }
 
-        public void actualizar(Vector3 posicionPersonaje,float elapsedTime,List<AlumnoEjemplos.MiGrupo.EjemploAlumno.dataBala> balas,Personaje personaje, List<TgcMesh> meshes)
+        public void actualizar(float elapsedTime,Personaje personaje, List<TgcMesh> meshes, bool renderizar)
         {
             Vector3 lastPos = enemigo.Position;
-            balasAEliminar = new List<EjemploAlumno.dataBala>(); 
+            Vector3 posicionPersonaje = personaje.posicion();
             Vector3 direccionMovimiento = posicionPersonaje-lastPos;
             direccionMovimiento.Y = 0;
             direccionMovimiento.Normalize();
@@ -78,16 +76,6 @@ namespace AlumnoEjemplos.MiGrupo
             enemigo.rotateY(anguloAnterior-angulo);
             anguloAnterior = angulo;
             
-            foreach (AlumnoEjemplos.MiGrupo.EjemploAlumno.dataBala bala in balas)
-            {
-                TgcCollisionUtils.BoxBoxResult result = TgcCollisionUtils.classifyBoxBox(enemigo.BoundingBox, bala.bala.BoundingBox);
-                if (result == TgcCollisionUtils.BoxBoxResult.Adentro || result == TgcCollisionUtils.BoxBoxResult.Atravesando)
-                {  
-                    eliminado = true;
-                    personaje.unEnemigoMenos();
-                    balasAEliminar.Add(bala);
-                }
-            }
             //Detectar colisiones de BoundingBox utilizando herramienta TgcCollisionUtils
          
             
@@ -109,10 +97,11 @@ namespace AlumnoEjemplos.MiGrupo
                 collide = false;
             }
             
-            balas.RemoveAll(seDebeEliminar);
-            //enemigo.Rotation = new Vector3((float)(Math.PI / 2), 0, 0);
             atacarAPersonaje(personaje);
-            enemigo.animateAndRender();
+            if (renderizar)
+            {
+                enemigo.animateAndRender();
+            }
         }
 
         private void atacarAPersonaje(Personaje personaje)
@@ -137,10 +126,6 @@ namespace AlumnoEjemplos.MiGrupo
                     }
                 }
             }
-        }
-
-        private bool seDebeEliminar(AlumnoEjemplos.MiGrupo.EjemploAlumno.dataBala bala){
-            return balasAEliminar.Contains(bala);
         }
     }
 

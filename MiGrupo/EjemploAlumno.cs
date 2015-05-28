@@ -30,17 +30,13 @@ namespace AlumnoEjemplos.MiGrupo
         List<Enemigo> enemigos = new List<Enemigo>();
         int cantidadEnemigos = 20;
         int nBalas = 0;
-        public struct dataBala
-        {
-            public TgcBox bala;
-            public Vector3 direccionBala;
-        };
         Double ultimoTiro = 0;
         Double ultimoZoom = 0;
-        List<dataBala> balas = new List<dataBala>();
-        
-        public List<TgcMesh> meshes;
-        TgcScene[] meshesVegetacion = new TgcScene[4];
+        public List<TgcMesh> objetosMapa;
+        bool optimizacion = false;
+        int limiteRenderizado = 500;
+        List<TgcBox> bordes = new List<TgcBox>();
+
         /// <summary>
         /// Categoría a la que pertenece el ejemplo.
         /// Influye en donde se va a haber en el árbol de la derecha de la pantalla.
@@ -73,76 +69,40 @@ namespace AlumnoEjemplos.MiGrupo
         /// </summary>
         public override void init()
         {
-
-
-
-
+            //**** Asignaciones *****//
             TgcSceneLoader loader = new TgcSceneLoader();
+            GuiController.Instance.CustomRenderEnabled = true;
 
+            //**** Inicializar Nivel ******//
+            //Piso
+            piso = Mapa.nuevoPiso(new Vector2(2000, 2000), "pasto");
+            //Skybox
+            skyBox = new SkyBoxSniper(10000, "Mar");
+            //Bordes
+            bordes = Mapa.crearBordes();
+            //Personaje
+            personaje = new Personaje(arma);
+            //Arma
+            arma = new Arma("counter", "mira");
             //Enemigos
-            TgcScene scene = loader.loadSceneFromFile(GuiController.Instance.AlumnoEjemplosMediaDir + "Modelos\\Robot\\Robot-TgcScene.xml");
-            TgcMesh enemigo = scene.Meshes[0];
-            enemigo.Scale = new Vector3(0.1f, 0.1f, 0.1f);
+            enemigos = Mapa.crearEnemigos(cantidadEnemigos,personaje);
+            //Vegetacion
+            objetosMapa = Mapa.crearObjetosMapa(enemigos);
 
+
+            //***** Inicializar Camara ******//
             camara = new CamaraSniper();
             camara.Enable = true;
             camara.MovementSpeed = 50f;
             camara.JumpSpeed = 0;
-            camara.setCamera(new Vector3(0, 10, 0), new Vector3(1, 0, 0));
+            camara.setCamera(new Vector3(0, 10, 0), new Vector3(5, 5, 5));
+            camara.RotateMouseButton = TgcD3dInput.MouseButtons.BUTTON_MIDDLE;
+            camara.updateCamera();
             GuiController.Instance.CurrentCamera = camara;
 
-            piso = Mapa.nuevoPiso(new Vector2(2000, 2000), "pasto");
-
-            skyBox = new SkyBoxSniper(10000, "Mar");
-
-            arma = new Arma("counter", "mira");
-
+            //***** Cursor *****//
             Cursor.Hide();
-
-
-            bala = TgcBox.fromSize(new Vector3(0, 0, 0), new Vector3(1f, 1f, 1f), Color.Red);
-
-            //Creando enemigos
-            for (int i = 0; i < cantidadEnemigos; i++)
-            {
-                float xAleatorio = (float)(Randomizar.Instance.NextDouble() * 2000 - 1000);
-                float yAleatorio = (float)(Randomizar.Instance.NextDouble() * 2000 - 1000);
-                enemigos.Add(new Enemigo(new Vector3(xAleatorio, 0, yAleatorio), enemigo,personaje));
-            }
-
-
-
-            GuiController.Instance.FpsCamera.RotateMouseButton = TgcD3dInput.MouseButtons.BUTTON_MIDDLE;
-
-
-            //Cargar modelo de vegetacion
-            meshesVegetacion[0] = loader.loadSceneFromFile(GuiController.Instance.ExamplesMediaDir + "MeshCreator\\Meshes\\Vegetacion\\Planta\\Planta-TgcScene.xml");
-            meshesVegetacion[1] = loader.loadSceneFromFile(GuiController.Instance.ExamplesMediaDir + "MeshCreator\\Meshes\\Vegetacion\\Palmera3\\Palmera3-TgcScene.xml");
-            meshesVegetacion[2] = loader.loadSceneFromFile(GuiController.Instance.ExamplesMediaDir + "MeshCreator\\Meshes\\Vegetacion\\Roca\\Roca-TgcScene.xml");
-            meshesVegetacion[3] = loader.loadSceneFromFile(GuiController.Instance.ExamplesMediaDir + "MeshCreator\\Meshes\\Vegetacion\\Pasto\\Pasto-TgcScene.xml");
-            createVegetation();
-
-
-            /*Vector3 lastPos = enemigo.Position;
-            bool collide = false;
-            foreach (Enemigo unEnemigo in enemigos)
-            {
-                TgcCollisionUtils.BoxBoxResult result = TgcCollisionUtils.classifyBoxBox(unEnemigo.enemigo.BoundingBox, enemigo.BoundingBox);
-                if (result == TgcCollisionUtils.BoxBoxResult.Adentro || result == TgcCollisionUtils.BoxBoxResult.Atravesando)
-                {
-                    collide = true;
-
-                }
-
-            }
-
-            //Si hubo colision, restaurar la posicion anterior
-            if (collide)
-            {
-                enemigo.Position = lastPos;
-                collide = false;
-            }*/
-            personaje = new Personaje(arma);
+            
         }
 
 
@@ -155,84 +115,74 @@ namespace AlumnoEjemplos.MiGrupo
         /// <param name="elapsedTime">Tiempo en segundos transcurridos desde el último frame</param>
         public override void render(float elapsedTime)
         {
+            //***** Asignaciones ******//
             Microsoft.DirectX.Direct3D.Device d3dDevice = GuiController.Instance.D3dDevice;
-            arma.actualizar();
-            piso.render();
-            skyBox.render();
 
-            foreach (TgcMesh planta in meshes)
-            {
-                planta.render();
-            }
+            //****** Render de mapa ********//
+            d3dDevice.BeginScene();
 
-           
+            //***** Mouse *****//
+            //Puntero en el centro de la pantalla
+            Control focusWindows = GuiController.Instance.D3dDevice.CreationParameters.FocusWindow;
+            Cursor.Position = focusWindows.PointToScreen(new Point(focusWindows.Width / 2, focusWindows.Height / 2));
             TgcD3dInput input = GuiController.Instance.D3dInput;
+            //Disparo
             if (input.buttonDown(TgcD3dInput.MouseButtons.BUTTON_LEFT) && !personaje.muerto())
             {
                 if (System.DateTime.Now.TimeOfDay.TotalMilliseconds - ultimoTiro > 500)
                 {
-                    ultimoTiro = System.DateTime.Now.TimeOfDay.TotalMilliseconds;
-                    dataBala datosDeBala;
-                    datosDeBala.bala = bala.clone();
-                    datosDeBala.bala.setPositionSize(GuiController.Instance.CurrentCamera.getPosition(), bala.Size);
-                    datosDeBala.direccionBala = GuiController.Instance.CurrentCamera.getLookAt() - GuiController.Instance.CurrentCamera.getPosition();
-                    balas.Add(datosDeBala);
-                    nBalas++;
+                    arma.disparar(personaje,enemigos,objetosMapa);
                 }
-               /*rotacion arma con camara
-                * tmplookAt = camera.getLookAt() - camera.getPosition();
-                tmpRotationY = MathUtil.getDegree(tmplookAt.X, tmplookAt.Z) + initRotation.X;
-                weaponDrawing.setRotationY(tmpRotationY);
-                tmpRotationXZ = Vector3.Cross(tmplookAt, axisY);
-                weaponDrawing.setRotationXZ(tmpRotationXZ, initRotation.Y - (float)Math.Acos(Vector3.Dot(tmplookAt, axisY)));*/
+                ultimoTiro = System.DateTime.Now.TimeOfDay.TotalMilliseconds;
                 
             }
+            //Zoom
             else if(input.buttonDown(TgcD3dInput.MouseButtons.BUTTON_RIGHT)){
                 if (System.DateTime.Now.TimeOfDay.TotalMilliseconds - ultimoZoom > 500)
                 {
-                    arma.zoomActivado = !arma.zoomActivado;
+                    arma.hacerZoom();
                     ultimoZoom = System.DateTime.Now.TimeOfDay.TotalMilliseconds;
-                    camara = (CamaraSniper)GuiController.Instance.CurrentCamera;
-                    if (camara.zoom == 1)
-                    {
-                        camara.zoom = 0.1f;
-                    }
-                    else
-                    {
-                        camara.zoom = 1f;
-                    }
-                    GuiController.Instance.CurrentCamera = camara;
                 }
             }
-            foreach(dataBala datosBala in balas)
-            {   
-                datosBala.bala.move(datosBala.direccionBala * elapsedTime * 200f);
-                datosBala.bala.BoundingBox.render();
-                datosBala.bala.render();
-            }
-            Control focusWindows = GuiController.Instance.D3dDevice.CreationParameters.FocusWindow;
-            Cursor.Position = focusWindows.PointToScreen(new Point(focusWindows.Width / 2, focusWindows.Height / 2));
 
+            //***** Renders ******//
+            piso.render();
+            skyBox.render();
+            personaje.actualizar();
+            foreach (TgcMesh objeto in objetosMapa)
+            {
+                if (colisionaConFrustum(objeto.BoundingBox))
+                {
+                    objeto.render();
+                }
+                
+            }
             foreach (Enemigo enemigo in enemigos)
             {
-                enemigo.actualizar(GuiController.Instance.CurrentCamera.getPosition(), elapsedTime, balas,personaje,meshes);
+                enemigo.actualizar(elapsedTime, personaje, objetosMapa,colisionaConFrustum(enemigo.enemigo.BoundingBox));
             }
-            enemigos.RemoveAll(enemigoElminable);
-            balas.RemoveAll(estaLejos);
-           /* if (TgcCollisionUtils.testSphereSphere(boundingBall, collisionableList[j].boundingBall))
+            foreach (TgcBox borde in bordes)
             {
-                colisionador.cantColisiones--;
-                vecAux = colisionador.direction;
-                colisionador.direction = collisionableList[j].direction;
-                collisionableList[j].direction = vecAux;
-            }*/
-            personaje.actualizar();
+                borde.render();
+            }
+            d3dDevice.EndScene();
 
-
+            //******** Render de arma********//
+            d3dDevice.BeginScene();
+            /*CamaraSniper camaraAnterior = (CamaraSniper)GuiController.Instance.CurrentCamera;
+            CamaraSniper camaraNueva = new CamaraSniper();
+            camaraNueva.Enable = true;
+            camaraNueva.setCamera(new Vector3(0, 0, 0), new Vector3(5, 5, 5));
+            camaraNueva.Velocity = new Vector3(0,0,0);
+            camaraNueva.JumpSpeed = 0f;
+            camaraNueva.updateCamera();
+            GuiController.Instance.CurrentCamera = camaraNueva;
+            
+            arma.armaMesh.render();*/
+            arma.actualizar();
+            d3dDevice.EndScene();
+            //GuiController.Instance.CurrentCamera = camaraAnterior;
         }
-
-        
-
 
         /// <summary>
         /// Método que se llama cuando termina la ejecución del ejemplo.
@@ -242,57 +192,15 @@ namespace AlumnoEjemplos.MiGrupo
         {
             piso.dispose();
             skyBox.dispose();
+            enemigos.Clear();
+            objetosMapa.Clear();
         }
 
-
-        private bool enemigoElminable(Enemigo enemigo)
+        private bool colisionaConFrustum(TgcBoundingBox objeto)
         {
-            return enemigo.eliminado;
-        }
-
-        private bool estaLejos(dataBala bala)
-        {   
-            float distanciaAPersonaje = (bala.bala.Position - GuiController.Instance.CurrentCamera.getPosition()).Length();
-            return distanciaAPersonaje > 3000;
-        }
-
-        private void createVegetation()
-        {
-            meshes = new List<TgcMesh>();
-            for (int i = 0; i < 500; i++)
-            { //Se puede aumentar el numero pero si no se utiliza la grilla regular decae mucho la performance
-                int numero = (int)(Randomizar.Instance.NextDouble() * 4);
-                TgcMesh planta = (TgcMesh)meshesVegetacion[numero].Meshes[0].clone("");
-                planta.move(new Vector3(-1000 + (float)Randomizar.Instance.NextDouble() * 2000, 0, -1000 + (float)Randomizar.Instance.NextDouble() * 2000));
-
-                if (numero == 1)
-                {
-                    planta.BoundingBox.scaleTranslate(planta.Position, new Vector3(0.04f, 1, 0.04f));
-                    planta.Name = "palmera";
-                }
-
-                if (numero == 2)
-                {
-                    planta.BoundingBox.scaleTranslate(planta.Position, new Vector3(0.8f, 1, 0.8f));
-                    planta.Name = "roca";
-                }
-
-                if (numero == 3)
-                {
-                    planta.BoundingBox.scaleTranslate(planta.Position, new Vector3(0f, 0, 0f));
-                    planta.Name = "pasto";
-                }
-
-                if (numero == 0)
-                {
-                    planta.BoundingBox.scaleTranslate(planta.Position, new Vector3(0.01f, 1, 0.01f));
-                    planta.Name = "planta";
-                }
-
-
-                meshes.Add(planta);
-
-            }
+            TgcFrustum frustum = GuiController.Instance.Frustum;
+            bool enFrustum = (TgcCollisionUtils.classifyFrustumAABB(frustum, objeto) == TgcCollisionUtils.FrustumResult.INSIDE || TgcCollisionUtils.classifyFrustumAABB(frustum, objeto) == TgcCollisionUtils.FrustumResult.INTERSECT)|| !optimizacion;
+            return enFrustum && (((objeto.Position) - (personaje.posicion())).Length() < limiteRenderizado);
         }
 
     }
