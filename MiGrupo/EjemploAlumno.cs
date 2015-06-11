@@ -13,6 +13,7 @@ using TgcViewer.Utils.Input;
 using System.Windows.Forms;
 using Microsoft.DirectX.DirectInput;
 using TgcViewer.Utils;
+using TgcViewer.Utils.Shaders;
 
 namespace AlumnoEjemplos.MiGrupo
 {
@@ -36,6 +37,7 @@ namespace AlumnoEjemplos.MiGrupo
         bool optimizacion = false;
         int limiteRenderizado = 500;
         List<TgcBox> bordes = new List<TgcBox>();
+        Microsoft.DirectX.Direct3D.Effect efecto;
 
         /// <summary>
         /// Categoría a la que pertenece el ejemplo.
@@ -73,6 +75,10 @@ namespace AlumnoEjemplos.MiGrupo
             TgcSceneLoader loader = new TgcSceneLoader();
             GuiController.Instance.CustomRenderEnabled = true;
 
+            //Cargar shader de este ejemplo
+            efecto = TgcShaders.loadEffect(GuiController.Instance.ExamplesMediaDir + "Shaders\\EjemploGetZBuffer.fx");
+
+
             //**** Inicializar Nivel ******//
             //Piso
             piso = Mapa.nuevoPiso(new Vector2(2000, 2000), "pasto");
@@ -102,6 +108,20 @@ namespace AlumnoEjemplos.MiGrupo
 
             //***** Cursor *****//
             Cursor.Hide();
+
+
+
+
+            ///agregado
+            foreach (Enemigo enemigo in enemigos)
+            {
+                enemigo.enemigo.Effect = efecto;
+            }
+            foreach (TgcMesh objeto in objetosMapa)
+            {
+                objeto.Effect = efecto;
+            }
+            piso.Effect = efecto;
             
         }
 
