@@ -68,7 +68,7 @@ namespace AlumnoEjemplos.MiGrupo
             eliminado = true;
         }
 
-        public void disparar(Personaje personaje, List<Enemigo> enemigos,List<TgcMesh> objetos)
+        public void disparar(Personaje personaje, List<Enemigo> enemigos,List<Objeto> objetos)
         {
             TgcRay disparo = new TgcRay(personaje.posicion(),personaje.direccionEnLaQueMira());
             Enemigo enemigoQueRecibeDisparo = null;
@@ -85,9 +85,9 @@ namespace AlumnoEjemplos.MiGrupo
                     }
                 }
             }
-            foreach (TgcMesh objeto in objetos)
+            foreach (Objeto objeto in objetos)
             {
-                if (TgcCollisionUtils.intersectRayAABB(disparo, objeto.BoundingBox, out puntoImpacto))
+                if (TgcCollisionUtils.intersectRayAABB(disparo, objeto.colisionFisica, out puntoImpacto))
                 {
                     if (((puntoImpacto - (personaje.posicion())).Length()) < ((menorPuntoImpacto - (personaje.posicion())).Length()))
                     {

@@ -87,12 +87,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MiGrupo\Arbol.cs" />
     <Compile Include="MiGrupo\Arma.cs" />
     <Compile Include="MiGrupo\CamaraSniper.cs" />
     <Compile Include="MiGrupo\Celda.cs" />
     <Compile Include="MiGrupo\EjemploAlumno.cs" />
     <Compile Include="MiGrupo\Enemigo.cs" />
     <Compile Include="MiGrupo\Mapa.cs" />
+    <Compile Include="MiGrupo\Objeto.cs" />
+    <Compile Include="MiGrupo\Pasto.cs" />
     <Compile Include="MiGrupo\Personaje.cs" />
     <Compile Include="MiGrupo\Randomizar.cs" />
     <Compile Include="MiGrupo\SkyBoxSniper.cs" />

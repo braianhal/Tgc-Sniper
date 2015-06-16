@@ -12,7 +12,7 @@ namespace AlumnoEjemplos.MiGrupo
     class Celda
     {
         public List<Celda> celdas = new List<Celda>();
-        public List<TgcMesh> objetos = new List<TgcMesh>();
+        public List<Objeto> objetos = new List<Objeto>();
         public TgcBoundingBox cajaColision;
 
         public Celda(Vector3 posicion, float tamanio)
@@ -20,7 +20,7 @@ namespace AlumnoEjemplos.MiGrupo
             cajaColision = new TgcBoundingBox(posicion, posicion + (new Vector3(tamanio, tamanio, tamanio)));
         }
 
-        public void agregarObjeto(TgcMesh objeto){
+        public void agregarObjeto(Objeto objeto){
             objetos.Add(objeto);
         }
 

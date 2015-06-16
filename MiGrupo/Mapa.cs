@@ -9,8 +9,19 @@ using TgcViewer.Utils.TgcSceneLoader;
 
 namespace AlumnoEjemplos.MiGrupo
 {
-    static class Mapa
+    class Mapa
     {
+        Double ultimoCambioViento;
+        Double tasaCambioViento = 1000 * 40;
+        public float velocidadViento = 0.1f;
+        float maximaVelocidadViento = 0.5f;
+
+        public Mapa()
+        {
+            ultimoCambioViento = System.DateTime.Now.TimeOfDay.TotalMilliseconds;
+
+        }
+
         public static TgcBox nuevoPiso(Vector2 tamanio,string textura)
         {
             string texturePath = GuiController.Instance.AlumnoEjemplosMediaDir + "Texturas\\" + textura + ".jpg";
@@ -22,17 +33,43 @@ namespace AlumnoEjemplos.MiGrupo
         }
 
 
-        public static List<TgcMesh> crearObjetosMapa(List<Enemigo> enemigos)
+        public static List<Objeto> crearObjetosMapa(List<Enemigo> enemigos,int cantidadArboles,int cantidadPasto)
         {
-            TgcSceneLoader loader = new TgcSceneLoader();
-            TgcScene[] meshesObjetos = new TgcScene[4];
+            //TgcSceneLoader loader = new TgcSceneLoader();
+            /*TgcScene[] meshesObjetos = new TgcScene[4];
 
             meshesObjetos[0] = loader.loadSceneFromFile(GuiController.Instance.ExamplesMediaDir + "MeshCreator\\Meshes\\Vegetacion\\Planta\\Planta-TgcScene.xml");
             meshesObjetos[1] = loader.loadSceneFromFile(GuiController.Instance.ExamplesMediaDir + "MeshCreator\\Meshes\\Vegetacion\\Palmera3\\Palmera3-TgcScene.xml");
             meshesObjetos[2] = loader.loadSceneFromFile(GuiController.Instance.ExamplesMediaDir + "MeshCreator\\Meshes\\Vegetacion\\Roca\\Roca-TgcScene.xml");
             meshesObjetos[3] = loader.loadSceneFromFile(GuiController.Instance.ExamplesMediaDir + "MeshCreator\\Meshes\\Vegetacion\\Pasto\\Pasto-TgcScene.xml");
 
-            return crearVegetacion(meshesObjetos,enemigos);
+            return crearVegetacion(meshesObjetos,enemigos);*/
+            TgcSceneLoader loader = new TgcSceneLoader();
+            List<Objeto> objetos = new List<Objeto>();
+            TgcMesh arbol = loader.loadSceneFromFile(GuiController.Instance.ExamplesMediaDir + "MeshCreator\\Meshes\\Vegetacion\\Pino\\Pino-TgcScene.xml").Meshes[0];
+            TgcMesh pasto = loader.loadSceneFromFile(GuiController.Instance.ExamplesMediaDir + "MeshCreator\\Meshes\\Vegetacion\\Arbusto\\Arbusto-TgcScene.xml").Meshes[0];
+            
+            for (int i = 0; i < cantidadArboles; i++)
+            {
+                int numero = (int)(Randomizar.Instance.NextDouble() * 4);
+                Vector3 moverA = new Vector3(-1000 + (float)Randomizar.Instance.NextDouble() * 2000, -0.5f, -1000 + (float)Randomizar.Instance.NextDouble() * 2000);
+                foreach (Enemigo enemigo in enemigos)
+                {
+                    if ((((moverA - (enemigo.enemigo.Position)).Length()) < 3))
+                    {
+                        moverA = new Vector3(-1000 + (float)Randomizar.Instance.NextDouble() * 2000, -0.5f, -1000 + (float)Randomizar.Instance.NextDouble() * 2000);
+                    }
+                }
+                objetos.Add(new Arbol(moverA, arbol.clone(""), "pino"));
+            }
+            pasto.Scale = new Vector3(0.5f, 0.5f, 0.5f);
+            for (int i = 0; i < cantidadPasto; i++)
+            {
+                Vector3 moverA = new Vector3(-500 + (float)Randomizar.Instance.NextDouble() * 1000, 0, -500 + (float)Randomizar.Instance.NextDouble() * 1000);
+                objetos.Add(new Pasto(moverA, pasto.clone("")));
+            }
+
+            return objetos;
         }
 
         public static List<Enemigo> crearEnemigos(int cantidadEnemigos,Personaje personaje)
@@ -121,25 +158,13 @@ namespace AlumnoEjemplos.MiGrupo
             return bordes;
         }
 
-        public static List<TgcMesh> crearPasto()
+        public void actualizar()
         {
-            TgcSceneLoader loader = new TgcSceneLoader();
-            TgcMesh unPasto = loader.loadSceneFromFile(GuiController.Instance.ExamplesMediaDir + "MeshCreator\\Meshes\\Vegetacion\\Flores\\Flores.max-TgcScene.xml").Meshes[0];
-
-            List<TgcMesh> pasto = new List<TgcMesh>();
-            unPasto.Scale = new Vector3(unPasto.Scale.X,0.25f,unPasto.Scale.Z);
-
-            for (int i = -1000; i < 1000; i+=10)
+            if ((System.DateTime.Now.TimeOfDay.TotalMilliseconds - ultimoCambioViento)> tasaCambioViento)
             {
-                for (int j = -1000; j < 1000; j += 10)
-                {
-                    TgcMesh otroPasto = unPasto.clone("");
-                    otroPasto.Position = new Vector3(i,0,j);
-                    pasto.Add(otroPasto);
-                }
+                velocidadViento =  (float)Randomizar.Instance.NextDouble() * maximaVelocidadViento;
+                ultimoCambioViento = System.DateTime.Now.TimeOfDay.TotalMilliseconds;
             }
-            return pasto;
-        
         }
     }
 }

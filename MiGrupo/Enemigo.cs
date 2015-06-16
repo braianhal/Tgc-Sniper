@@ -62,7 +62,7 @@ namespace AlumnoEjemplos.MiGrupo
             personaje = elPersonaje;
         }
 
-        public void actualizar(float elapsedTime,Personaje personaje, List<TgcMesh> meshes, bool renderizar)
+        public void actualizar(float elapsedTime,Personaje personaje, List<Objeto> objetos, bool renderizar)
         {
             Vector3 lastPos = enemigo.Position;
             Vector3 posicionPersonaje = personaje.posicion();
@@ -77,11 +77,11 @@ namespace AlumnoEjemplos.MiGrupo
             anguloAnterior = angulo;
             
             //Detectar colisiones de BoundingBox utilizando herramienta TgcCollisionUtils
-         
-            
-            foreach (TgcMesh planta in meshes)
+
+
+            foreach (Objeto objeto in objetos)
             {
-                TgcCollisionUtils.BoxBoxResult result = TgcCollisionUtils.classifyBoxBox(planta.BoundingBox, enemigo.BoundingBox);
+                TgcCollisionUtils.BoxBoxResult result = TgcCollisionUtils.classifyBoxBox(enemigo.BoundingBox,objeto.colisionFisica);
                 if (result == TgcCollisionUtils.BoxBoxResult.Adentro || result == TgcCollisionUtils.BoxBoxResult.Atravesando)
                 {
                     collide = true;

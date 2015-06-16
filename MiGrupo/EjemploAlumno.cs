@@ -34,14 +34,12 @@ namespace AlumnoEjemplos.MiGrupo
         int nBalas = 0;
         Double ultimoTiro = 0;
         Double ultimoZoom = 0;
-        public List<TgcMesh> objetosMapa;
-        bool optimizacion = false;
-        int limiteRenderizado = 500;
+        List<Objeto> objetosMapa;
         List<TgcBox> bordes = new List<TgcBox>();
         Microsoft.DirectX.Direct3D.Effect efecto;
-        int nivelesGrilla = 3;
         List<Celda> celdas = new List<Celda>();
-        List<TgcMesh> pasto = new List<TgcMesh>();
+        List<Objeto> objetosColisionables = new List<Objeto>();
+        Mapa mapa;
 
         /// <summary>
         /// Categoría a la que pertenece el ejemplo.
@@ -99,8 +97,7 @@ namespace AlumnoEjemplos.MiGrupo
             //Enemigos
             enemigos = Mapa.crearEnemigos(cantidadEnemigos,personaje);
             //Vegetacion
-            objetosMapa = Mapa.crearObjetosMapa(enemigos);
-            pasto = Mapa.crearPasto();
+            objetosMapa = Mapa.crearObjetosMapa(enemigos,500,250);
 
 
             //***** Inicializar Camara ******//
@@ -131,7 +128,12 @@ namespace AlumnoEjemplos.MiGrupo
                 objeto.Effect = efecto;
             }
             piso.Effect = efecto;*/
-            
+
+            objetosColisionables = colisionables();
+
+
+            mapa = new Mapa();
+
         }
 
 
@@ -160,7 +162,7 @@ namespace AlumnoEjemplos.MiGrupo
             {
                 if (System.DateTime.Now.TimeOfDay.TotalMilliseconds - ultimoTiro > 500)
                 {
-                    arma.disparar(personaje,enemigos,objetosMapa);
+                    arma.disparar(personaje, enemigos, objetosColisionables);
                 }
                 ultimoTiro = System.DateTime.Now.TimeOfDay.TotalMilliseconds;
                 
@@ -174,26 +176,20 @@ namespace AlumnoEjemplos.MiGrupo
                 }
             }
 
+            //Actualizacion velocidad viento cada 40 segundos
+            mapa.actualizar();
+
             //***** Renders ******//
             piso.render();
             skyBox.render();
             personaje.actualizar();
 
-            //quadtree.render(GuiController.Instance.Frustum, false);
-            renderizarObjetos();
-            foreach (TgcMesh pastoX in pasto)
-            {
-                if (((pastoX.Position - GuiController.Instance.CurrentCamera.getPosition()).Length()) < 100)
-                {
-                    pastoX.render();
-                }
-                
-            }
+            renderizarObjetos(elapsedTime);
 
 
             foreach (Enemigo enemigo in enemigos)
             {
-                enemigo.actualizar(elapsedTime, personaje, objetosMapa,colisionaConFrustum(enemigo.enemigo.BoundingBox));
+                enemigo.actualizar(elapsedTime, personaje, objetosColisionables, colisionaConFrustum(enemigo.enemigo.BoundingBox));
             }
             foreach (TgcBox borde in bordes)
             {
@@ -240,16 +236,16 @@ namespace AlumnoEjemplos.MiGrupo
             return resultado == TgcCollisionUtils.FrustumResult.INSIDE || resultado == TgcCollisionUtils.FrustumResult.INTERSECT;
         }
 
-        private void renderizarObjetos()
+        private void renderizarObjetos(float elapsedTime)
         {
             foreach(Celda celda in celdas){
                 if (colisionaConFrustum(celda.cajaColision))
                 {
-                    foreach (TgcMesh objeto in celda.objetos)
+                    foreach (Objeto objeto in celda.objetos)
                     {
-                        if (colisionaConFrustum(objeto.BoundingBox))
+                        if (colisionaConFrustum(objeto.mesh.BoundingBox))
                         {
-                            objeto.render();
+                            objeto.render(elapsedTime,mapa.velocidadViento);
                         }
                     }
                 }
@@ -291,31 +287,41 @@ namespace AlumnoEjemplos.MiGrupo
             int valor = 8;
             float desplazamiento = 2000 / valor;
             Vector2 inicial = new Vector2(-1000,-1000);
-            List<TgcMesh> objetosRestantes = new List<TgcMesh>();
+            List<Objeto> objetosRestantes = new List<Objeto>();
             objetosRestantes = objetosMapa;
-            List<TgcMesh> aEliminar = new List<TgcMesh>();
+            List<Objeto> aEliminar = new List<Objeto>();
             for (int i = 0; i < valor; i++)
             {
                 for (int j = 0; j < valor; j++)
                 {
                     Celda estaCelda;
                     celdas.Add(estaCelda = new Celda(new Vector3(i * desplazamiento + inicial.X, 0, j * desplazamiento + inicial.Y), desplazamiento));
-                    foreach (TgcMesh objeto in objetosRestantes)
+                    foreach (Objeto objeto in objetosRestantes)
                     {
-                        TgcCollisionUtils.BoxBoxResult resultado = (TgcCollisionUtils.classifyBoxBox(objeto.BoundingBox, estaCelda.cajaColision));
+                        TgcCollisionUtils.BoxBoxResult resultado = (TgcCollisionUtils.classifyBoxBox(objeto.mesh.BoundingBox, estaCelda.cajaColision));
                         if (resultado == TgcCollisionUtils.BoxBoxResult.Adentro || resultado == TgcCollisionUtils.BoxBoxResult.Atravesando)
                         {
                             estaCelda.agregarObjeto(objeto);
                             aEliminar.Add(objeto);
                         }
                     }
-                    foreach (TgcMesh objeto in aEliminar)
+                    foreach(Objeto objeto in aEliminar)
                     {
                         objetosRestantes.Remove(objeto);
                     }
                     aEliminar.Clear();
                 }
             }
+        }
+
+        private List<Objeto> colisionables()
+        {
+            return objetosMapa.FindAll(esColisionable);
+        }
+
+        private bool esColisionable(Objeto objeto)
+        {
+            return objeto.colisionable;
         }
 
     }
