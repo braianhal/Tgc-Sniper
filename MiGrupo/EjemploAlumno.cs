@@ -14,6 +14,7 @@ using System.Windows.Forms;
 using Microsoft.DirectX.DirectInput;
 using TgcViewer.Utils;
 using TgcViewer.Utils.Shaders;
+using TgcViewer.Utils._2D;
 
 namespace AlumnoEjemplos.MiGrupo
 {
@@ -38,6 +39,9 @@ namespace AlumnoEjemplos.MiGrupo
         int limiteRenderizado = 500;
         List<TgcBox> bordes = new List<TgcBox>();
         Microsoft.DirectX.Direct3D.Effect efecto;
+        int nivelesGrilla = 3;
+        List<Celda> celdas = new List<Celda>();
+        List<TgcMesh> pasto = new List<TgcMesh>();
 
         /// <summary>
         /// Categoría a la que pertenece el ejemplo.
@@ -73,10 +77,12 @@ namespace AlumnoEjemplos.MiGrupo
         {
             //**** Asignaciones *****//
             TgcSceneLoader loader = new TgcSceneLoader();
-            GuiController.Instance.CustomRenderEnabled = true;
+            //GuiController.Instance.CustomRenderEnabled = true;
+            GuiController.Instance.FpsCounterEnable = true;
+            
 
             //Cargar shader de este ejemplo
-            efecto = TgcShaders.loadEffect(GuiController.Instance.ExamplesMediaDir + "Shaders\\EjemploGetZBuffer.fx");
+            //efecto = TgcShaders.loadEffect(GuiController.Instance.ExamplesMediaDir + "Shaders\\EjemploGetZBuffer.fx");
 
 
             //**** Inicializar Nivel ******//
@@ -94,6 +100,7 @@ namespace AlumnoEjemplos.MiGrupo
             enemigos = Mapa.crearEnemigos(cantidadEnemigos,personaje);
             //Vegetacion
             objetosMapa = Mapa.crearObjetosMapa(enemigos);
+            pasto = Mapa.crearPasto();
 
 
             //***** Inicializar Camara ******//
@@ -110,10 +117,12 @@ namespace AlumnoEjemplos.MiGrupo
             Cursor.Hide();
 
 
+            //******* Inicializar grilla *******//
+            crearGrilla();
 
 
             ///agregado
-            foreach (Enemigo enemigo in enemigos)
+            /*foreach (Enemigo enemigo in enemigos)
             {
                 enemigo.enemigo.Effect = efecto;
             }
@@ -121,7 +130,7 @@ namespace AlumnoEjemplos.MiGrupo
             {
                 objeto.Effect = efecto;
             }
-            piso.Effect = efecto;
+            piso.Effect = efecto;*/
             
         }
 
@@ -137,9 +146,9 @@ namespace AlumnoEjemplos.MiGrupo
         {
             //***** Asignaciones ******//
             Microsoft.DirectX.Direct3D.Device d3dDevice = GuiController.Instance.D3dDevice;
-
+            
             //****** Render de mapa ********//
-            d3dDevice.BeginScene();
+            //d3dDevice.BeginScene();
 
             //***** Mouse *****//
             //Puntero en el centro de la pantalla
@@ -169,14 +178,19 @@ namespace AlumnoEjemplos.MiGrupo
             piso.render();
             skyBox.render();
             personaje.actualizar();
-            foreach (TgcMesh objeto in objetosMapa)
+
+            //quadtree.render(GuiController.Instance.Frustum, false);
+            renderizarObjetos();
+            foreach (TgcMesh pastoX in pasto)
             {
-                if (colisionaConFrustum(objeto.BoundingBox))
+                if (((pastoX.Position - GuiController.Instance.CurrentCamera.getPosition()).Length()) < 100)
                 {
-                    objeto.render();
+                    pastoX.render();
                 }
                 
             }
+
+
             foreach (Enemigo enemigo in enemigos)
             {
                 enemigo.actualizar(elapsedTime, personaje, objetosMapa,colisionaConFrustum(enemigo.enemigo.BoundingBox));
@@ -185,10 +199,10 @@ namespace AlumnoEjemplos.MiGrupo
             {
                 borde.render();
             }
-            d3dDevice.EndScene();
+            //d3dDevice.EndScene();
 
             //******** Render de arma********//
-            d3dDevice.BeginScene();
+            //d3dDevice.BeginScene();
             /*CamaraSniper camaraAnterior = (CamaraSniper)GuiController.Instance.CurrentCamera;
             CamaraSniper camaraNueva = new CamaraSniper();
             camaraNueva.Enable = true;
@@ -200,7 +214,10 @@ namespace AlumnoEjemplos.MiGrupo
             
             arma.armaMesh.render();*/
             arma.actualizar();
-            d3dDevice.EndScene();
+
+            
+
+            //d3dDevice.EndScene();
             //GuiController.Instance.CurrentCamera = camaraAnterior;
         }
 
@@ -219,8 +236,86 @@ namespace AlumnoEjemplos.MiGrupo
         private bool colisionaConFrustum(TgcBoundingBox objeto)
         {
             TgcFrustum frustum = GuiController.Instance.Frustum;
-            bool enFrustum = (TgcCollisionUtils.classifyFrustumAABB(frustum, objeto) == TgcCollisionUtils.FrustumResult.INSIDE || TgcCollisionUtils.classifyFrustumAABB(frustum, objeto) == TgcCollisionUtils.FrustumResult.INTERSECT)|| !optimizacion;
-            return enFrustum && (((objeto.Position) - (personaje.posicion())).Length() < limiteRenderizado);
+            TgcCollisionUtils.FrustumResult resultado = TgcCollisionUtils.classifyFrustumAABB(frustum, objeto);
+            return resultado == TgcCollisionUtils.FrustumResult.INSIDE || resultado == TgcCollisionUtils.FrustumResult.INTERSECT;
+        }
+
+        private void renderizarObjetos()
+        {
+            foreach(Celda celda in celdas){
+                if (colisionaConFrustum(celda.cajaColision))
+                {
+                    foreach (TgcMesh objeto in celda.objetos)
+                    {
+                        if (colisionaConFrustum(objeto.BoundingBox))
+                        {
+                            objeto.render();
+                        }
+                    }
+                }
+            }
+        }
+
+        /*private List<Celda> crearGrilla(Vector2 puntoInicial, int iteracion,List<Celda> lasCeldas)
+        {
+            float desplazamiento = (float)Math.Pow(10,iteracion);
+            for (int i = 0; i < 2; i++)
+            {
+                for (int j = 0; j < 2; j++)
+                {
+                    Vector3 posicion = new Vector3(desplazamiento * i + puntoInicial.X, 0, desplazamiento * i + puntoInicial.Y);
+                    Celda estaCelda;
+                    lasCeldas.Add(estaCelda = new Celda(posicion,desplazamiento));
+                    if (iteracion == 1)
+                    {
+                        foreach (TgcMesh objeto in objetosMapa)
+                        {   
+                            TgcCollisionUtils.BoxBoxResult resultado = (TgcCollisionUtils.classifyBoxBox(objeto.BoundingBox,estaCelda.cajaColision));
+                            if (resultado == TgcCollisionUtils.BoxBoxResult.Adentro || resultado == TgcCollisionUtils.BoxBoxResult.Atravesando)
+                            {
+                                estaCelda.agregarObjeto(objeto);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        estaCelda.agregarCeldas(crearGrilla(new Vector2(posicion.X, posicion.Z), iteracion - 1, estaCelda.celdas));
+                    }
+                }
+            }
+            return lasCeldas;
+        }*/
+
+        private void crearGrilla()
+        {
+            int valor = 8;
+            float desplazamiento = 2000 / valor;
+            Vector2 inicial = new Vector2(-1000,-1000);
+            List<TgcMesh> objetosRestantes = new List<TgcMesh>();
+            objetosRestantes = objetosMapa;
+            List<TgcMesh> aEliminar = new List<TgcMesh>();
+            for (int i = 0; i < valor; i++)
+            {
+                for (int j = 0; j < valor; j++)
+                {
+                    Celda estaCelda;
+                    celdas.Add(estaCelda = new Celda(new Vector3(i * desplazamiento + inicial.X, 0, j * desplazamiento + inicial.Y), desplazamiento));
+                    foreach (TgcMesh objeto in objetosRestantes)
+                    {
+                        TgcCollisionUtils.BoxBoxResult resultado = (TgcCollisionUtils.classifyBoxBox(objeto.BoundingBox, estaCelda.cajaColision));
+                        if (resultado == TgcCollisionUtils.BoxBoxResult.Adentro || resultado == TgcCollisionUtils.BoxBoxResult.Atravesando)
+                        {
+                            estaCelda.agregarObjeto(objeto);
+                            aEliminar.Add(objeto);
+                        }
+                    }
+                    foreach (TgcMesh objeto in aEliminar)
+                    {
+                        objetosRestantes.Remove(objeto);
+                    }
+                    aEliminar.Clear();
+                }
+            }
         }
 
     }

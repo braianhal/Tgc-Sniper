@@ -89,6 +89,7 @@
   <ItemGroup>
     <Compile Include="MiGrupo\Arma.cs" />
     <Compile Include="MiGrupo\CamaraSniper.cs" />
+    <Compile Include="MiGrupo\Celda.cs" />
     <Compile Include="MiGrupo\EjemploAlumno.cs" />
     <Compile Include="MiGrupo\Enemigo.cs" />
     <Compile Include="MiGrupo\Mapa.cs" />

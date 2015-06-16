@@ -74,25 +74,25 @@ namespace AlumnoEjemplos.MiGrupo
                 objeto.move(moverA);
                 if (numero == 1)
                 {
-                    objeto.BoundingBox.scaleTranslate(objeto.Position, new Vector3(0.04f, 1, 0.04f));
+                    //objeto.BoundingBox.scaleTranslate(objeto.Position, new Vector3(0.04f, 1, 0.04f));
                     objeto.Name = "palmera";
                 }
 
                 if (numero == 2)
                 {
-                    objeto.BoundingBox.scaleTranslate(objeto.Position, new Vector3(0.8f, 1, 0.8f));
+                    //objeto.BoundingBox.scaleTranslate(objeto.Position, new Vector3(0.8f, 1, 0.8f));
                     objeto.Name = "roca";
                 }
 
                 if (numero == 3)
                 {
-                    objeto.BoundingBox.scaleTranslate(objeto.Position, new Vector3(0f, 0, 0f));
+                    //objeto.BoundingBox.scaleTranslate(objeto.Position, new Vector3(0f, 0, 0f));
                     objeto.Name = "pasto";
                 }
 
                 if (numero == 0)
                 {
-                    objeto.BoundingBox.scaleTranslate(objeto.Position, new Vector3(0.01f, 1, 0.01f));
+                    //objeto.BoundingBox.scaleTranslate(objeto.Position, new Vector3(0.01f, 1, 0.01f));
                     objeto.Name = "planta";
                 }
 
@@ -119,6 +119,27 @@ namespace AlumnoEjemplos.MiGrupo
             }
             
             return bordes;
+        }
+
+        public static List<TgcMesh> crearPasto()
+        {
+            TgcSceneLoader loader = new TgcSceneLoader();
+            TgcMesh unPasto = loader.loadSceneFromFile(GuiController.Instance.ExamplesMediaDir + "MeshCreator\\Meshes\\Vegetacion\\Flores\\Flores.max-TgcScene.xml").Meshes[0];
+
+            List<TgcMesh> pasto = new List<TgcMesh>();
+            unPasto.Scale = new Vector3(unPasto.Scale.X,0.25f,unPasto.Scale.Z);
+
+            for (int i = -1000; i < 1000; i+=10)
+            {
+                for (int j = -1000; j < 1000; j += 10)
+                {
+                    TgcMesh otroPasto = unPasto.clone("");
+                    otroPasto.Position = new Vector3(i,0,j);
+                    pasto.Add(otroPasto);
+                }
+            }
+            return pasto;
+        
         }
     }
 }
