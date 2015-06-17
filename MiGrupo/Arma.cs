@@ -14,6 +14,7 @@ namespace AlumnoEjemplos.MiGrupo
     {
         public TgcSprite miraSprite;
         public TgcSprite miraZoomSprite;
+        public TgcSprite armaSprite;
         bool eliminado = false;
         public TgcMesh armaMesh;
         //TgcMesh miraMesh;
@@ -21,11 +22,11 @@ namespace AlumnoEjemplos.MiGrupo
 
         public Arma(string arma,string mira)
         {
-            TgcSceneLoader loader = new TgcSceneLoader();
+            /*TgcSceneLoader loader = new TgcSceneLoader();
             TgcScene scene = loader.loadSceneFromFile(GuiController.Instance.AlumnoEjemplosMediaDir + "Modelos\\Sniper_Arma\\arma-TgcScene.xml");
             armaMesh = scene.Meshes[1];
             armaMesh.Scale = new Vector3(10, 10, 10);
-            armaMesh.Position = new Vector3(5, 0, 5);
+            armaMesh.Position = new Vector3(5, 0, 5);*/
 
             int anchoPantalla = GuiController.Instance.D3dDevice.Viewport.Width;
             int altoPantalla = GuiController.Instance.D3dDevice.Viewport.Height;
@@ -33,6 +34,11 @@ namespace AlumnoEjemplos.MiGrupo
             string pathTexturaMira = GuiController.Instance.AlumnoEjemplosMediaDir + "Sprites\\" + mira + ".png";
             miraSprite.Texture = TgcTexture.createTexture(pathTexturaMira);
             miraSprite.Position = new Vector2(anchoPantalla / 2 - miraSprite.Texture.Width / 2, altoPantalla / 2 - miraSprite.Texture.Height / 2);
+
+            armaSprite = new TgcSprite();
+            string pathTexturaArma = GuiController.Instance.AlumnoEjemplosMediaDir + "Sprites\\" + arma + ".png";
+            armaSprite.Texture = TgcTexture.createTexture(pathTexturaArma);
+            armaSprite.Position = new Vector2(anchoPantalla / 2, altoPantalla / 2);
 
 
 
@@ -47,9 +53,10 @@ namespace AlumnoEjemplos.MiGrupo
 
         public void actualizar()
         {
+            GuiController.Instance.Drawer2D.beginDrawSprite();
             if (!eliminado)
             {
-                GuiController.Instance.Drawer2D.beginDrawSprite();
+                
                 if (!zoomActivado)
                 {
                     miraSprite.render();  
@@ -58,9 +65,10 @@ namespace AlumnoEjemplos.MiGrupo
                 {
                     miraZoomSprite.render();
                 }
-                GuiController.Instance.Drawer2D.endDrawSprite();
+                
             }
-            
+            armaSprite.render();
+            GuiController.Instance.Drawer2D.endDrawSprite();
         }
 
         public void eliminar()
@@ -98,8 +106,7 @@ namespace AlumnoEjemplos.MiGrupo
             }
             if (enemigoQueRecibeDisparo != null)
             {
-                personaje.unEnemigoMenos();
-                enemigos.Remove(enemigoQueRecibeDisparo);
+                enemigoQueRecibeDisparo.loAtaco(personaje);
             }
         }
 

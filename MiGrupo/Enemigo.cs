@@ -8,20 +8,25 @@ using TgcViewer;
 using TgcViewer.Utils.TgcGeometry;
 using TgcViewer.Utils.TgcKeyFrameLoader;
 using TgcViewer.Utils.TgcSceneLoader;
+using TgcViewer.Utils.TgcSkeletalAnimation;
 
 namespace AlumnoEjemplos.MiGrupo
 {
     class Enemigo
     {
         float anguloAnterior = (float)Math.PI / 2;
-        float velocidad = 50f;
+        float velocidad = 25f;
         bool collide = false;
         Double ultimoAtaque = 0;
         Personaje personaje;
         public TgcKeyFrameMesh enemigo;
+        int vida;
+
+        enum Estado {PERSIGUIENDO,PARADO,ATACANDO,MUERTO};
+        Estado estado = Estado.PERSIGUIENDO;
 
 
-        public Enemigo(Vector3 posicion,TgcMesh meshEnemigo,Personaje elPersonaje)
+        public Enemigo(Vector3 posicion,  Personaje elPersonaje)
         {
             //Paths para archivo XML de la malla
             string pathMesh = GuiController.Instance.ExamplesMediaDir + "KeyframeAnimations\\Robot\\Robot-TgcKeyFrameMesh.xml";
@@ -56,10 +61,11 @@ namespace AlumnoEjemplos.MiGrupo
             enemigo.playAnimation("Correr", true);
             //enemigo = TgcBox.fromSize(posicion, new Vector3(10f, 10f, 20f), Color.Blue);
 
-           // enemigo = meshEnemigo.clone("");
             enemigo.Position = posicion;
             enemigo.Scale = new Vector3(0.1f, 0.1f, 0.1f);
             personaje = elPersonaje;
+            vida = 100;
+            enemigo.BoundingBox.scaleTranslate(enemigo.Position, new Vector3(0.25f,1,0.25f));
         }
 
         public void actualizar(float elapsedTime,Personaje personaje, List<Objeto> objetos, bool renderizar)
@@ -101,6 +107,7 @@ namespace AlumnoEjemplos.MiGrupo
             if (renderizar)
             {
                 enemigo.animateAndRender();
+                enemigo.BoundingBox.render();
             }
         }
 
@@ -117,15 +124,24 @@ namespace AlumnoEjemplos.MiGrupo
                     {
                         enemigo.playAnimation("Correr", true);
                     }
-                    else if (Randomizar.Instance.NextDouble() > 0.5f)
+                    else
                     {
                         enemigo.playAnimation("Pegar", true);
                     }
-                    else{
-                        enemigo.playAnimation("Patear", true);
-                    }
                 }
             }
+        }
+
+        public void loAtaco(Personaje personaje)
+        {
+            vida -= 25;
+
+            if (vida <= 0)
+            {
+                estado = Estado.MUERTO;
+                personaje.unEnemigoMenos();
+            }
+
         }
     }
 

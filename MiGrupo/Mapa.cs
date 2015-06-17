@@ -1,11 +1,15 @@
 ﻿using Microsoft.DirectX;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using TgcViewer;
+using TgcViewer.Utils.Particles;
 using TgcViewer.Utils.TgcGeometry;
+using TgcViewer.Utils.TgcKeyFrameLoader;
 using TgcViewer.Utils.TgcSceneLoader;
+using TgcViewer.Utils.TgcSkeletalAnimation;
 
 namespace AlumnoEjemplos.MiGrupo
 {
@@ -15,11 +19,14 @@ namespace AlumnoEjemplos.MiGrupo
         Double tasaCambioViento = 1000 * 40;
         public float velocidadViento = 0.1f;
         float maximaVelocidadViento = 0.5f;
+        ParticleEmitter nieve;
+
 
         public Mapa()
         {
             ultimoCambioViento = System.DateTime.Now.TimeOfDay.TotalMilliseconds;
-
+            nieve = new ParticleEmitter(GuiController.Instance.AlumnoEjemplosMediaDir + "Texturas\\nieve.png", 100000);
+            nieve.Position = new Vector3(0, 5, 0);
         }
 
         public static TgcBox nuevoPiso(Vector2 tamanio,string textura)
@@ -72,13 +79,44 @@ namespace AlumnoEjemplos.MiGrupo
             return objetos;
         }
 
-        public static List<Enemigo> crearEnemigos(int cantidadEnemigos,Personaje personaje)
+        public static List<Enemigo> crearEnemigos(int cantidadEnemigos,Personaje personaje, string tipo)
         {
-            TgcSceneLoader loader = new TgcSceneLoader();
-            TgcScene scene = loader.loadSceneFromFile(GuiController.Instance.AlumnoEjemplosMediaDir + "Modelos\\Robot\\Robot-TgcScene.xml");
-            TgcMesh enemigo = scene.Meshes[0];
+
+            //************************ VER *****************//
+
+
             List<Enemigo> enemigos = new List<Enemigo>();
-            enemigo.Scale = new Vector3(0.1f, 0.1f, 0.1f);
+            //Cargar malla original
+            //Paths para archivo XML de la malla
+            /*string pathMesh = GuiController.Instance.ExamplesMediaDir + "SkeletalAnimations\\Trooper\\Trooper-TgcSkeletalMesh.xml";
+
+            //Path para carpeta de texturas de la malla
+            string mediaPath = GuiController.Instance.ExamplesMediaDir + "SkeletalAnimations\\Trooper\\";
+
+            //Lista de animaciones disponibles
+            string[] animationList = new string[]{
+                "TrooperStandBy",
+                "TrooperWalk",
+                "TrooperRun",
+                "TrooperHighKick",
+            };
+
+            //Crear rutas con cada animacion
+            string[] animationsPath = new string[animationList.Length];
+            for (int i = 0; i < animationList.Length; i++)
+            {
+                animationsPath[i] = mediaPath + animationList[i] + "-TgcSkeletalAnim.xml";
+            }
+
+            //Cargar mesh y animaciones
+            TgcSkeletalLoader loader = new TgcSkeletalLoader();
+            TgcSkeletalMesh original = loader.loadMeshAndAnimationsFromFile(pathMesh, mediaPath, animationsPath);
+
+            //Crear esqueleto a modo Debug
+            original.buildSkletonMesh();*/
+
+            
+
             for (int i = 0; i < cantidadEnemigos; i++)
             {
                 float xAleatorio = (float)(Randomizar.Instance.NextDouble() * 2000 - 1000);
@@ -88,7 +126,7 @@ namespace AlumnoEjemplos.MiGrupo
                     xAleatorio = (float)(Randomizar.Instance.NextDouble() * 2000 - 1000);
                     yAleatorio = (float)(Randomizar.Instance.NextDouble() * 2000 - 1000);
                 }
-                enemigos.Add(new Enemigo(new Vector3(xAleatorio, 0, yAleatorio), enemigo, personaje));
+                enemigos.Add(new Enemigo(new Vector3(xAleatorio, 0, yAleatorio),  personaje));
             }
             return enemigos;
         }
@@ -165,6 +203,9 @@ namespace AlumnoEjemplos.MiGrupo
                 velocidadViento =  (float)Randomizar.Instance.NextDouble() * maximaVelocidadViento;
                 ultimoCambioViento = System.DateTime.Now.TimeOfDay.TotalMilliseconds;
             }
+            nieve.render();
         }
+
+
     }
 }

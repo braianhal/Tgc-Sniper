@@ -15,6 +15,7 @@ using Microsoft.DirectX.DirectInput;
 using TgcViewer.Utils;
 using TgcViewer.Utils.Shaders;
 using TgcViewer.Utils._2D;
+using TgcViewer.Utils.Particles;
 
 namespace AlumnoEjemplos.MiGrupo
 {
@@ -95,10 +96,9 @@ namespace AlumnoEjemplos.MiGrupo
             //Arma
             arma = new Arma("counter", "mira");
             //Enemigos
-            enemigos = Mapa.crearEnemigos(cantidadEnemigos,personaje);
+            enemigos = Mapa.crearEnemigos(cantidadEnemigos, personaje, "Robot");
             //Vegetacion
             objetosMapa = Mapa.crearObjetosMapa(enemigos,500,250);
-
 
             //***** Inicializar Camara ******//
             camara = new CamaraSniper();
