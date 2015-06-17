@@ -109,6 +109,7 @@ namespace AlumnoEjemplos.MiGrupo
                         if (renderizar)
                         {
                             enemigo.animateAndRender();
+
                         }
 
                     break;

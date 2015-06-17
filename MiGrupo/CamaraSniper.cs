@@ -219,6 +219,13 @@ namespace AlumnoEjemplos.MiGrupo
         /// <summary>
         /// Configura la posicion de la cámara
         /// </summary>
+        /// 
+
+        public void moveLaCamara(Vector3 direccionEnLaQueMira)
+        {
+            move(direccionEnLaQueMira * -1, new Vector3(2, 0, 2));
+        }
+
         private void setCamera(Vector3 eye, Vector3 target, Vector3 up)
         {
             this.eye = eye;

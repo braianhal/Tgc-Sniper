@@ -41,6 +41,8 @@ namespace AlumnoEjemplos.MiGrupo
         List<Celda> celdas = new List<Celda>();
         List<Objeto> objetosColisionables = new List<Objeto>();
         Mapa mapa;
+        bool collide = false;
+        TgcBoundingBox camaraColision;
 
         /// <summary>
         /// Categoría a la que pertenece el ejemplo.
@@ -83,6 +85,7 @@ namespace AlumnoEjemplos.MiGrupo
             //Cargar shader de este ejemplo
             //efecto = TgcShaders.loadEffect(GuiController.Instance.ExamplesMediaDir + "Shaders\\EjemploGetZBuffer.fx");
 
+            camaraColision = new TgcBoundingBox(new Vector3(-2, 0, -2), new Vector3(-2, 0, -2) + (new Vector3(4, 15, 4)));
 
             //**** Inicializar Nivel ******//
             //Piso
@@ -92,7 +95,7 @@ namespace AlumnoEjemplos.MiGrupo
             //Bordes
             bordes = Mapa.crearBordes();
             //Personaje
-            personaje = new Personaje(arma);
+            personaje = new Personaje(arma, camaraColision);
             //Arma
             arma = new Arma("counter", "mira");
             //Enemigos
@@ -196,6 +199,29 @@ namespace AlumnoEjemplos.MiGrupo
             foreach (TgcBox borde in bordes)
             {
                 borde.render();
+            }
+
+
+            //Detectar colisiones de BoundingBox utilizando herramienta TgcCollisionUtils
+
+
+            foreach (Objeto objeto in objetosColisionables)
+            {
+                TgcCollisionUtils.BoxBoxResult result = TgcCollisionUtils.classifyBoxBox(camaraColision, objeto.colisionFisica);
+                if (result == TgcCollisionUtils.BoxBoxResult.Adentro || result == TgcCollisionUtils.BoxBoxResult.Atravesando)
+                {
+                    collide = true;
+
+                }
+
+            }
+
+            //Si hubo colision, restaurar la posicion anterior
+            if (collide)
+            {
+                Vector3 direccion = personaje.direccionEnLaQueMira();
+                camara.moveLaCamara(direccion);
+                collide = false;
             }
             //d3dDevice.EndScene();
 

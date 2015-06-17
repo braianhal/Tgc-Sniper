@@ -19,12 +19,15 @@ namespace AlumnoEjemplos.MiGrupo
         TgcText2d textoEnemigos;
         TgcText2d textoFinJuego;
         TgcSprite atacadoSprite;
+        TgcBoundingBox boundingCamara;
         Vector3 ultimaPos = GuiController.Instance.CurrentCamera.getPosition();
         int cantidadEnemigos = 20;
 
-        public Personaje(Arma armaUsada)
+
+        public Personaje(Arma armaUsada, TgcBoundingBox camaraColision)
         {
             arma = armaUsada;
+            boundingCamara = camaraColision;
 
             int anchoPantalla = GuiController.Instance.D3dDevice.Viewport.Width;
             int altoPantalla = GuiController.Instance.D3dDevice.Viewport.Height;
@@ -105,6 +108,8 @@ namespace AlumnoEjemplos.MiGrupo
                 textoFinJuego.render();
             }
             GuiController.Instance.Drawer2D.endDrawSprite();
+
+            boundingCamara.move(posicion() - boundingCamara.Position + new Vector3(-2, 0, -2));
             
         }
 

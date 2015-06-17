@@ -20,7 +20,7 @@ namespace AlumnoEjemplos.MiGrupo
             colisionFisica = mesh.BoundingBox.clone();
             colisionable = true;
 
-            colisionFisica.scaleTranslate(mesh.Position, new Vector3(0.06f, 1, 0.06f));
+            colisionFisica.scaleTranslate(mesh.Position, new Vector3(0.08f, 1, 0.08f));
 
             ultimoCambio = System.DateTime.Now.TimeOfDay.TotalMilliseconds;
         }
