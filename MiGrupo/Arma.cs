@@ -82,6 +82,7 @@ namespace AlumnoEjemplos.MiGrupo
             Enemigo enemigoQueRecibeDisparo = null;
             Vector3 puntoImpacto;
             Vector3 menorPuntoImpacto = new Vector3(10000,10000,10000);
+            Objeto objetoQueRecibeDisparo = null;
 
             foreach(Enemigo enemigo in enemigos){
                 if (TgcCollisionUtils.intersectRayAABB(disparo, enemigo.enemigo.BoundingBox, out puntoImpacto))
@@ -99,6 +100,7 @@ namespace AlumnoEjemplos.MiGrupo
                 {
                     if (((puntoImpacto - (personaje.posicion())).Length()) < ((menorPuntoImpacto - (personaje.posicion())).Length()))
                     {
+                        objetoQueRecibeDisparo = objeto;
                         enemigoQueRecibeDisparo = null;
                         break;
                     }
@@ -107,6 +109,10 @@ namespace AlumnoEjemplos.MiGrupo
             if (enemigoQueRecibeDisparo != null)
             {
                 enemigoQueRecibeDisparo.loAtaco(personaje);
+            }
+            else if(objetoQueRecibeDisparo != null)
+            {
+                objetoQueRecibeDisparo.recibirDisparo(enemigos);
             }
         }
 

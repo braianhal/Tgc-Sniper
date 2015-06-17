@@ -16,12 +16,13 @@ namespace AlumnoEjemplos.MiGrupo
         public virtual void render(float elapsedTime,float velocidadViento)
         {
             this.mesh.render();
-            /*if (colisionable)
-            {
-                this.colisionFisica.render();
-            }
-            this.mesh.BoundingBox.render();*/
         }
 
+        public virtual void recibirDisparo(List<Enemigo> enemigos)
+        {
+
+        }
+
+        
     }
 }

@@ -98,7 +98,7 @@ namespace AlumnoEjemplos.MiGrupo
             //Enemigos
             enemigos = Mapa.crearEnemigos(cantidadEnemigos, personaje, "Robot");
             //Vegetacion
-            objetosMapa = Mapa.crearObjetosMapa(enemigos,500,250);
+            objetosMapa = Mapa.crearObjetosMapa(enemigos,500,250,100,personaje);
 
             //***** Inicializar Camara ******//
             camara = new CamaraSniper();
@@ -113,6 +113,8 @@ namespace AlumnoEjemplos.MiGrupo
             //***** Cursor *****//
             Cursor.Hide();
 
+
+            objetosColisionables = colisionables();
 
             //******* Inicializar grilla *******//
             crearGrilla();
@@ -129,7 +131,7 @@ namespace AlumnoEjemplos.MiGrupo
             }
             piso.Effect = efecto;*/
 
-            objetosColisionables = colisionables();
+           
 
 
             mapa = new Mapa();
@@ -211,7 +213,10 @@ namespace AlumnoEjemplos.MiGrupo
             arma.armaMesh.render();*/
             arma.actualizar();
 
-            
+
+
+
+
 
             //d3dDevice.EndScene();
             //GuiController.Instance.CurrentCamera = camaraAnterior;
@@ -245,7 +250,7 @@ namespace AlumnoEjemplos.MiGrupo
                     {
                         if (colisionaConFrustum(objeto.mesh.BoundingBox))
                         {
-                            objeto.render(elapsedTime,mapa.velocidadViento);
+                            objeto.render(elapsedTime, mapa.velocidadViento);
                         }
                     }
                 }

@@ -40,22 +40,15 @@ namespace AlumnoEjemplos.MiGrupo
         }
 
 
-        public static List<Objeto> crearObjetosMapa(List<Enemigo> enemigos,int cantidadArboles,int cantidadPasto)
+        public static List<Objeto> crearObjetosMapa(List<Enemigo> enemigos,int cantidadArboles,int cantidadPasto,int cantidadBarriles,Personaje personaje)
         {
-            //TgcSceneLoader loader = new TgcSceneLoader();
-            /*TgcScene[] meshesObjetos = new TgcScene[4];
 
-            meshesObjetos[0] = loader.loadSceneFromFile(GuiController.Instance.ExamplesMediaDir + "MeshCreator\\Meshes\\Vegetacion\\Planta\\Planta-TgcScene.xml");
-            meshesObjetos[1] = loader.loadSceneFromFile(GuiController.Instance.ExamplesMediaDir + "MeshCreator\\Meshes\\Vegetacion\\Palmera3\\Palmera3-TgcScene.xml");
-            meshesObjetos[2] = loader.loadSceneFromFile(GuiController.Instance.ExamplesMediaDir + "MeshCreator\\Meshes\\Vegetacion\\Roca\\Roca-TgcScene.xml");
-            meshesObjetos[3] = loader.loadSceneFromFile(GuiController.Instance.ExamplesMediaDir + "MeshCreator\\Meshes\\Vegetacion\\Pasto\\Pasto-TgcScene.xml");
-
-            return crearVegetacion(meshesObjetos,enemigos);*/
             TgcSceneLoader loader = new TgcSceneLoader();
             List<Objeto> objetos = new List<Objeto>();
             TgcMesh arbol = loader.loadSceneFromFile(GuiController.Instance.ExamplesMediaDir + "MeshCreator\\Meshes\\Vegetacion\\Pino\\Pino-TgcScene.xml").Meshes[0];
             TgcMesh pasto = loader.loadSceneFromFile(GuiController.Instance.ExamplesMediaDir + "MeshCreator\\Meshes\\Vegetacion\\Arbusto\\Arbusto-TgcScene.xml").Meshes[0];
-            
+            TgcMesh barril = loader.loadSceneFromFile(GuiController.Instance.AlumnoEjemplosMediaDir + "Modelos\\Barril\\BarrilPolvora-TgcScene.xml").Meshes[0];
+
             for (int i = 0; i < cantidadArboles; i++)
             {
                 int numero = (int)(Randomizar.Instance.NextDouble() * 4);
@@ -74,6 +67,13 @@ namespace AlumnoEjemplos.MiGrupo
             {
                 Vector3 moverA = new Vector3(-500 + (float)Randomizar.Instance.NextDouble() * 1000, 0, -500 + (float)Randomizar.Instance.NextDouble() * 1000);
                 objetos.Add(new Pasto(moverA, pasto.clone("")));
+            }
+
+            barril.Scale = new Vector3(0.25f, 0.25f, 0.25f);
+            for (int i = 0; i < cantidadBarriles; i++)
+            {
+                Vector3 moverA = new Vector3(-1000 + (float)Randomizar.Instance.NextDouble() * 2000, 0, -1000 + (float)Randomizar.Instance.NextDouble() * 2000);
+                objetos.Add(new Barril(moverA, barril.clone(""),personaje));
             }
 
             return objetos;

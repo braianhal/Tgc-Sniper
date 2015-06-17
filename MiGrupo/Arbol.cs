@@ -19,13 +19,10 @@ namespace AlumnoEjemplos.MiGrupo
             mesh.move(posicion);
             colisionFisica = mesh.BoundingBox.clone();
             colisionable = true;
-            switch (tipo)
-            {
-                case "pino":
-                    colisionFisica.scaleTranslate(mesh.Position, new Vector3(0.06f, 1, 0.06f));
-                    break;
-            }
-            ultimoCambio = ultimoCambio = System.DateTime.Now.TimeOfDay.TotalMilliseconds;
+
+            colisionFisica.scaleTranslate(mesh.Position, new Vector3(0.06f, 1, 0.06f));
+
+            ultimoCambio = System.DateTime.Now.TimeOfDay.TotalMilliseconds;
         }
 
         public override void render(float elapsedTime, float velocidadViento)
@@ -39,5 +36,11 @@ namespace AlumnoEjemplos.MiGrupo
             }
             base.render(elapsedTime,velocidadViento);
         }
+
+        public override void recibirDisparo(List<Enemigo> enemigos)
+        {
+
+        }
+
     }
 }

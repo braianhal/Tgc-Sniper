@@ -31,5 +31,11 @@ namespace AlumnoEjemplos.MiGrupo
             }
             base.render(elapsedTime,velocidadViento);
         }
+
+        public override void recibirDisparo(List<Enemigo> enemigos)
+        {
+
+        }
+
     }
 }

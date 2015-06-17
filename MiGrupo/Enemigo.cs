@@ -70,45 +70,50 @@ namespace AlumnoEjemplos.MiGrupo
 
         public void actualizar(float elapsedTime,Personaje personaje, List<Objeto> objetos, bool renderizar)
         {
-            Vector3 lastPos = enemigo.Position;
-            Vector3 posicionPersonaje = personaje.posicion();
-            Vector3 direccionMovimiento = posicionPersonaje-lastPos;
-            direccionMovimiento.Y = 0;
-            direccionMovimiento.Normalize();
+            switch(estado){
+                case Estado.PERSIGUIENDO:
+                        Vector3 lastPos = enemigo.Position;
+                        Vector3 posicionPersonaje = personaje.posicion();
+                        Vector3 direccionMovimiento = posicionPersonaje-lastPos;
+                        direccionMovimiento.Y = 0;
+                        direccionMovimiento.Normalize();
         
-            enemigo.move(direccionMovimiento*velocidad*elapsedTime);
+                        enemigo.move(direccionMovimiento*velocidad*elapsedTime);
             
-            float angulo = (float)Math.Atan2(enemigo.Position.Z - posicionPersonaje.Z, enemigo.Position.X - posicionPersonaje.X);
-            enemigo.rotateY(anguloAnterior-angulo);
-            anguloAnterior = angulo;
+                        float angulo = (float)Math.Atan2(enemigo.Position.Z - posicionPersonaje.Z, enemigo.Position.X - posicionPersonaje.X);
+                        enemigo.rotateY(anguloAnterior-angulo);
+                        anguloAnterior = angulo;
             
-            //Detectar colisiones de BoundingBox utilizando herramienta TgcCollisionUtils
+                        //Detectar colisiones de BoundingBox utilizando herramienta TgcCollisionUtils
 
 
-            foreach (Objeto objeto in objetos)
-            {
-                TgcCollisionUtils.BoxBoxResult result = TgcCollisionUtils.classifyBoxBox(enemigo.BoundingBox,objeto.colisionFisica);
-                if (result == TgcCollisionUtils.BoxBoxResult.Adentro || result == TgcCollisionUtils.BoxBoxResult.Atravesando)
-                {
-                    collide = true;
+                        foreach (Objeto objeto in objetos)
+                        {
+                            TgcCollisionUtils.BoxBoxResult result = TgcCollisionUtils.classifyBoxBox(enemigo.BoundingBox,objeto.colisionFisica);
+                            if (result == TgcCollisionUtils.BoxBoxResult.Adentro || result == TgcCollisionUtils.BoxBoxResult.Atravesando)
+                            {
+                                collide = true;
                   
-                }
+                            }
                
-            }
+                        }
 
-            //Si hubo colision, restaurar la posicion anterior
-            if (collide)
-            {
-                enemigo.Position = lastPos;
-                collide = false;
-            }
+                        //Si hubo colision, restaurar la posicion anterior
+                        if (collide)
+                        {
+                            enemigo.Position = lastPos;
+                            collide = false;
+                        }
             
-            atacarAPersonaje(personaje);
-            if (renderizar)
-            {
-                enemigo.animateAndRender();
-                enemigo.BoundingBox.render();
+                        atacarAPersonaje(personaje);
+                        if (renderizar)
+                        {
+                            enemigo.animateAndRender();
+                        }
+
+                    break;
             }
+           
         }
 
         private void atacarAPersonaje(Personaje personaje)
@@ -134,13 +139,19 @@ namespace AlumnoEjemplos.MiGrupo
 
         public void loAtaco(Personaje personaje)
         {
-            vida -= 25;
-
+            vida -= 50;
             if (vida <= 0)
             {
                 estado = Estado.MUERTO;
                 personaje.unEnemigoMenos();
             }
+        }
+
+        internal void recibioExplosion(Personaje personaje)
+        {
+            vida = 0;
+            estado = Estado.MUERTO;
+            personaje.unEnemigoMenos();
 
         }
     }
