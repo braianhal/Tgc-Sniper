@@ -44,6 +44,10 @@ namespace AlumnoEjemplos.MiGrupo
         bool collide = false;
         TgcBoundingBox camaraColision;
         List<Enemigo> enemigosMuertos = new List<Enemigo>();
+        Nieve nieve;
+        ClimaNieve clima;
+        float tiempo;
+
 
         /// <summary>
         /// Categoría a la que pertenece el ejemplo.
@@ -81,14 +85,15 @@ namespace AlumnoEjemplos.MiGrupo
             TgcSceneLoader loader = new TgcSceneLoader();
             //GuiController.Instance.CustomRenderEnabled = true;
             GuiController.Instance.FpsCounterEnable = true;
-            
 
-            //Cargar shader de este ejemplo
-            //efecto = TgcShaders.loadEffect(GuiController.Instance.ExamplesMediaDir + "Shaders\\EjemploGetZBuffer.fx");
+            //Nieve
+            GuiController.Instance.Modifiers.addBoolean("nieve", "Mostrar nieve", true);
+
 
             camaraColision = new TgcBoundingBox(new Vector3(-2, 0, -2), new Vector3(-2, 0, -2) + (new Vector3(4, 15, 4)));
 
             //**** Inicializar Nivel ******//
+            mapa = new Mapa();
             //Piso
             piso = Mapa.nuevoPiso(new Vector2(2000, 2000), "pasto");
             //Skybox
@@ -102,7 +107,10 @@ namespace AlumnoEjemplos.MiGrupo
             //Enemigos
             enemigos = Mapa.crearEnemigos(cantidadEnemigos, personaje, "Robot");
             //Vegetacion
-            objetosMapa = Mapa.crearObjetosMapa(enemigos,500,250,100,personaje);
+            objetosMapa = mapa.crearObjetosMapa(enemigos,500,250,100,personaje);
+            //nieve
+            nieve = new Nieve(3000, 3000, 200);
+            clima = new ClimaNieve(nieve);
 
             //***** Inicializar Camara ******//
             camara = new CamaraSniper();
@@ -124,21 +132,26 @@ namespace AlumnoEjemplos.MiGrupo
             crearGrilla();
 
 
-            ///agregado
-            /*foreach (Enemigo enemigo in enemigos)
+
+            //Cargar Shader personalizado
+            efecto = TgcShaders.loadEffect(GuiController.Instance.AlumnoEjemplosMediaDir + "BasicShader.fx");
+
+
+            /*foreach (Objeto objeto in objetosMapa)
+            {
+                objeto.mesh.Effect = efecto;
+                objeto.mesh.Technique = "RenderScene";
+            }
+            foreach (Enemigo enemigo in enemigos)
             {
                 enemigo.enemigo.Effect = efecto;
-            }
-            foreach (TgcMesh objeto in objetosMapa)
-            {
-                objeto.Effect = efecto;
-            }
-            piso.Effect = efecto;*/
+                enemigo.enemigo.Technique = "RenderScene";
+            }*/
+            piso.Effect = efecto;
+            piso.Technique = "RenderScene";
 
-           
+            tiempo = 0;
 
-
-            mapa = new Mapa();
 
         }
 
@@ -154,7 +167,14 @@ namespace AlumnoEjemplos.MiGrupo
         {
             //***** Asignaciones ******//
             Microsoft.DirectX.Direct3D.Device d3dDevice = GuiController.Instance.D3dDevice;
-            
+
+            tiempo += elapsedTime;
+            d3dDevice.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.Black, 1.0f, 0);
+
+            // Cargar variables de shader, por ejemplo el tiempo transcurrido.
+            efecto.SetValue("time", tiempo);
+
+
             //****** Render de mapa ********//
             //d3dDevice.BeginScene();
 
@@ -171,10 +191,11 @@ namespace AlumnoEjemplos.MiGrupo
                     arma.disparar(personaje, enemigos, objetosColisionables);
                 }
                 ultimoTiro = System.DateTime.Now.TimeOfDay.TotalMilliseconds;
-                
+
             }
             //Zoom
-            else if(input.buttonDown(TgcD3dInput.MouseButtons.BUTTON_RIGHT)){
+            else if (input.buttonDown(TgcD3dInput.MouseButtons.BUTTON_RIGHT))
+            {
                 if (System.DateTime.Now.TimeOfDay.TotalMilliseconds - ultimoZoom > 500)
                 {
                     arma.hacerZoom();
@@ -183,9 +204,11 @@ namespace AlumnoEjemplos.MiGrupo
             }
 
             //Actualizacion velocidad viento cada 40 segundos
-            mapa.actualizar();
+            mapa.actualizar(objetosMapa,celdas);
 
             //***** Renders ******//
+            nieve.renderNieve(elapsedTime);
+            clima.alternarClima();
             piso.render();
             skyBox.render();
             personaje.actualizar();
@@ -201,9 +224,12 @@ namespace AlumnoEjemplos.MiGrupo
                     enemigosMuertos.Add(enemigo);
                 }
             }
-            foreach(Enemigo enemigo in enemigosMuertos){
+            foreach (Enemigo enemigo in enemigosMuertos)
+            {
                 enemigos.Remove(enemigo);
             }
+
+
 
             foreach (TgcBox borde in bordes)
             {
@@ -211,8 +237,8 @@ namespace AlumnoEjemplos.MiGrupo
             }
 
 
-            
-            
+
+
             //Detectar colisiones de BoundingBox utilizando herramienta TgcCollisionUtils
 
 
@@ -234,26 +260,16 @@ namespace AlumnoEjemplos.MiGrupo
                 camara.moveLaCamara(direccion);
                 collide = false;
             }
-            //d3dDevice.EndScene();
 
-            //******** Render de arma********//
-            //d3dDevice.BeginScene();
-            /*CamaraSniper camaraAnterior = (CamaraSniper)GuiController.Instance.CurrentCamera;
-            CamaraSniper camaraNueva = new CamaraSniper();
-            camaraNueva.Enable = true;
-            camaraNueva.setCamera(new Vector3(0, 0, 0), new Vector3(5, 5, 5));
-            camaraNueva.Velocity = new Vector3(0,0,0);
-            camaraNueva.JumpSpeed = 0f;
-            camaraNueva.updateCamera();
-            GuiController.Instance.CurrentCamera = camaraNueva;
-            
-            arma.armaMesh.render();*/
             arma.actualizar();
 
 
             //d3dDevice.EndScene();
             //GuiController.Instance.CurrentCamera = camaraAnterior;
-        }
+        } 
+
+
+
 
         /// <summary>
         /// Método que se llama cuando termina la ejecución del ejemplo.
@@ -297,6 +313,7 @@ namespace AlumnoEjemplos.MiGrupo
                         
                     }
                 }
+                
             }
             yaRenderizados.Clear();
         }

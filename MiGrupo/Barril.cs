@@ -19,6 +19,7 @@ namespace AlumnoEjemplos.MiGrupo
         TgcSphere explosion = new TgcSphere();
         Vector3 escala = new Vector3(1.1f, 1.1f, 1.1f);
         Double desdeQueExplota;
+        public bool destruir = false;
 
 
         public Barril(Microsoft.DirectX.Vector3 moverA, TgcMesh meshBarril, Personaje unPersonaje)
@@ -68,6 +69,10 @@ namespace AlumnoEjemplos.MiGrupo
                     explosion.Radius *= 1.25f;
 
                     explosion.render();
+                }
+                else
+                {
+                    destruir = true;
                 }
                 //explosion.Scale = escala;
             }

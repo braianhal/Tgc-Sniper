@@ -17,7 +17,6 @@ namespace AlumnoEjemplos.MiGrupo
         public TgcSprite armaSprite;
         bool eliminado = false;
         public TgcMesh armaMesh;
-        //TgcMesh miraMesh;
         public bool zoomActivado = false;
 
         public Arma(string arma,string mira)

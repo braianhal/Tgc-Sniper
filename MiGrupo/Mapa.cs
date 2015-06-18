@@ -19,8 +19,8 @@ namespace AlumnoEjemplos.MiGrupo
         Double tasaCambioViento = 1000 * 40;
         public float velocidadViento = 0.1f;
         float maximaVelocidadViento = 0.2f;
+        List<Barril> barriles = new List<Barril>();
         ParticleEmitter nieve;
-
 
         public Mapa()
         {
@@ -31,16 +31,17 @@ namespace AlumnoEjemplos.MiGrupo
 
         public static TgcBox nuevoPiso(Vector2 tamanio,string textura)
         {
-            string texturePath = GuiController.Instance.AlumnoEjemplosMediaDir + "Texturas\\" + textura + ".jpg";
-            TgcTexture texturaPiso = TgcTexture.createTexture(GuiController.Instance.D3dDevice, texturePath);
-            TgcBox nuevoPiso = TgcBox.fromSize(new Vector3(0, 0, 0), new Vector3(tamanio.X, 0.1f, tamanio.Y), texturaPiso);
+            /*string texturePath = GuiController.Instance.AlumnoEjemplosMediaDir + "Texturas\\" + textura + ".jpg";
+            TgcTexture texturaPiso = TgcTexture.createTexture(GuiController.Instance.D3dDevice, texturePath);*/
+            TgcBox nuevoPiso = TgcBox.fromSize(new Vector3(0, 0, 0), new Vector3(tamanio.X, 0.1f, tamanio.Y));
             nuevoPiso.UVTiling = new Vector2(50, 50);
+            nuevoPiso.setTexture(TgcTexture.createTexture(GuiController.Instance.D3dDevice, GuiController.Instance.AlumnoEjemplosMediaDir + "Texturas\\nieve.png"));
             nuevoPiso.updateValues();
             return nuevoPiso;
         }
 
 
-        public static List<Objeto> crearObjetosMapa(List<Enemigo> enemigos,int cantidadArboles,int cantidadPasto,int cantidadBarriles,Personaje personaje)
+        public List<Objeto> crearObjetosMapa(List<Enemigo> enemigos,int cantidadArboles,int cantidadPasto,int cantidadBarriles,Personaje personaje)
         {
 
             TgcSceneLoader loader = new TgcSceneLoader();
@@ -72,8 +73,10 @@ namespace AlumnoEjemplos.MiGrupo
             barril.Scale = new Vector3(0.25f, 0.25f, 0.25f);
             for (int i = 0; i < cantidadBarriles; i++)
             {
+                Barril nuevoBarril;
                 Vector3 moverA = new Vector3(-1000 + (float)Randomizar.Instance.NextDouble() * 2000, 0, -1000 + (float)Randomizar.Instance.NextDouble() * 2000);
-                objetos.Add(new Barril(moverA, barril.clone(""),personaje));
+                objetos.Add(nuevoBarril = new Barril(moverA, barril.clone(""),personaje));
+                barriles.Add(nuevoBarril);
             }
 
             return objetos;
@@ -102,51 +105,6 @@ namespace AlumnoEjemplos.MiGrupo
             return enemigos;
         }
 
-
-        private static List<TgcMesh> crearVegetacion(TgcScene[] meshesObjetos, List<Enemigo> enemigos)
-        {
-            List<TgcMesh> objetosMapa = new List<TgcMesh>();
-            for (int i = 0; i < 500; i++)
-            { //Se puede aumentar el numero pero si no se utiliza la grilla regular decae mucho la performance
-                int numero = (int)(Randomizar.Instance.NextDouble() * 4);
-                TgcMesh objeto = (TgcMesh)meshesObjetos[numero].Meshes[0].clone("");
-                Vector3 moverA = new Vector3(-1000 + (float)Randomizar.Instance.NextDouble() * 2000, 0, -1000 + (float)Randomizar.Instance.NextDouble() * 2000);
-                foreach (Enemigo enemigo in enemigos)
-                {
-                    if((((moverA-(enemigo.enemigo.Position)).Length()) < 3)){
-                        moverA = new Vector3(-1000 + (float)Randomizar.Instance.NextDouble() * 2000, 0, -1000 + (float)Randomizar.Instance.NextDouble() * 2000);
-                    }
-                }
-                objeto.move(moverA);
-                if (numero == 1)
-                {
-                    //objeto.BoundingBox.scaleTranslate(objeto.Position, new Vector3(0.04f, 1, 0.04f));
-                    objeto.Name = "palmera";
-                }
-
-                if (numero == 2)
-                {
-                    //objeto.BoundingBox.scaleTranslate(objeto.Position, new Vector3(0.8f, 1, 0.8f));
-                    objeto.Name = "roca";
-                }
-
-                if (numero == 3)
-                {
-                    //objeto.BoundingBox.scaleTranslate(objeto.Position, new Vector3(0f, 0, 0f));
-                    objeto.Name = "pasto";
-                }
-
-                if (numero == 0)
-                {
-                    //objeto.BoundingBox.scaleTranslate(objeto.Position, new Vector3(0.01f, 1, 0.01f));
-                    objeto.Name = "planta";
-                }
-
-                objetosMapa.Add(objeto);
-            }
-            return objetosMapa;
-        }
-
         public static List<TgcBox> crearBordes()
         {
             List<TgcBox> bordes = new List<TgcBox>();
@@ -167,14 +125,34 @@ namespace AlumnoEjemplos.MiGrupo
             return bordes;
         }
 
-        public void actualizar()
+        public void actualizar(List<Objeto> objetosMapa,List<Celda> celdas)
         {
             if ((System.DateTime.Now.TimeOfDay.TotalMilliseconds - ultimoCambioViento)> tasaCambioViento)
             {
                 velocidadViento =  (float)Randomizar.Instance.NextDouble() * maximaVelocidadViento;
                 ultimoCambioViento = System.DateTime.Now.TimeOfDay.TotalMilliseconds;
             }
-            nieve.render();
+            foreach (Barril barril in barriles)
+            {
+                if (barril.destruir)
+                {
+                    objetosMapa.Remove(barril);
+                    foreach (Celda celda in celdas)
+                    {
+                        if (celda.objetos.Contains(barril))
+                        {
+                            celda.objetos.Remove(barril);
+                        }
+                    }
+                }
+                
+            }
+            barriles.RemoveAll(aDestruir);
+        }
+
+        private bool aDestruir(Barril barril)
+        {
+            return barril.destruir;
         }
 
 
