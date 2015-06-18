@@ -47,7 +47,8 @@ namespace AlumnoEjemplos.MiGrupo
         Nieve nieve;
         ClimaNieve clima;
         float tiempo;
-
+        Interfaz interfaz;
+        CamaraSniper camaraMenu;
 
         /// <summary>
         /// Categoría a la que pertenece el ejemplo.
@@ -84,10 +85,23 @@ namespace AlumnoEjemplos.MiGrupo
             //**** Asignaciones *****//
             TgcSceneLoader loader = new TgcSceneLoader();
             //GuiController.Instance.CustomRenderEnabled = true;
-            GuiController.Instance.FpsCounterEnable = true;
+            //GuiController.Instance.FpsCounterEnable = true;
 
             //Nieve
             GuiController.Instance.Modifiers.addBoolean("nieve", "Mostrar nieve", true);
+
+            //***** Inicializar Camara ******//
+            camara = new CamaraSniper();
+            camara.Enable = true;
+            camara.MovementSpeed = 50f;
+            camara.JumpSpeed = 0;
+            camara.setCamera(new Vector3(0, 10, 0), new Vector3(5, 5, 5));
+            camara.RotateMouseButton = TgcD3dInput.MouseButtons.BUTTON_MIDDLE;
+            camara.updateCamera();
+
+            GuiController.Instance.CurrentCamera = new TgcRotationalCamera();
+            interfaz = new Interfaz(camara, camaraMenu);
+
 
 
             camaraColision = new TgcBoundingBox(new Vector3(-2, 0, -2), new Vector3(-2, 0, -2) + (new Vector3(4, 15, 4)));
@@ -100,10 +114,10 @@ namespace AlumnoEjemplos.MiGrupo
             skyBox = new SkyBoxSniper(10000, "Mar");
             //Bordes
             bordes = Mapa.crearBordes();
-            //Personaje
-            personaje = new Personaje(arma, camaraColision);
             //Arma
             arma = new Arma("counter", "mira");
+            //Personaje
+            personaje = new Personaje(arma, camaraColision,interfaz);
             //Enemigos
             enemigos = Mapa.crearEnemigos(cantidadEnemigos, personaje, "Robot");
             //Vegetacion
@@ -112,15 +126,7 @@ namespace AlumnoEjemplos.MiGrupo
             nieve = new Nieve(3000, 3000, 200);
             clima = new ClimaNieve(nieve);
 
-            //***** Inicializar Camara ******//
-            camara = new CamaraSniper();
-            camara.Enable = true;
-            camara.MovementSpeed = 50f;
-            camara.JumpSpeed = 0;
-            camara.setCamera(new Vector3(0, 10, 0), new Vector3(5, 5, 5));
-            camara.RotateMouseButton = TgcD3dInput.MouseButtons.BUTTON_MIDDLE;
-            camara.updateCamera();
-            GuiController.Instance.CurrentCamera = camara;
+            
 
             //***** Cursor *****//
             Cursor.Hide();
@@ -137,21 +143,13 @@ namespace AlumnoEjemplos.MiGrupo
             efecto = TgcShaders.loadEffect(GuiController.Instance.AlumnoEjemplosMediaDir + "BasicShader.fx");
 
 
-            /*foreach (Objeto objeto in objetosMapa)
-            {
-                objeto.mesh.Effect = efecto;
-                objeto.mesh.Technique = "RenderScene";
-            }
-            foreach (Enemigo enemigo in enemigos)
-            {
-                enemigo.enemigo.Effect = efecto;
-                enemigo.enemigo.Technique = "RenderScene";
-            }*/
             piso.Effect = efecto;
             piso.Technique = "RenderScene";
 
             tiempo = 0;
 
+
+            
 
         }
 
@@ -165,107 +163,152 @@ namespace AlumnoEjemplos.MiGrupo
         /// <param name="elapsedTime">Tiempo en segundos transcurridos desde el último frame</param>
         public override void render(float elapsedTime)
         {
-            //***** Asignaciones ******//
-            Microsoft.DirectX.Direct3D.Device d3dDevice = GuiController.Instance.D3dDevice;
 
-            tiempo += elapsedTime;
-            d3dDevice.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.Black, 1.0f, 0);
-
-            // Cargar variables de shader, por ejemplo el tiempo transcurrido.
-            efecto.SetValue("time", tiempo);
-
-
-            //****** Render de mapa ********//
-            //d3dDevice.BeginScene();
-
-            //***** Mouse *****//
-            //Puntero en el centro de la pantalla
-            Control focusWindows = GuiController.Instance.D3dDevice.CreationParameters.FocusWindow;
-            Cursor.Position = focusWindows.PointToScreen(new Point(focusWindows.Width / 2, focusWindows.Height / 2));
-            TgcD3dInput input = GuiController.Instance.D3dInput;
-            //Disparo
-            if (input.buttonDown(TgcD3dInput.MouseButtons.BUTTON_LEFT) && !personaje.muerto())
+            if (interfaz.enTitulo)
             {
-                if (System.DateTime.Now.TimeOfDay.TotalMilliseconds - ultimoTiro > 500)
+                interfaz.mostrarTitulo();
+
+                //Actualizacion velocidad viento cada 40 segundos
+                mapa.actualizar(objetosMapa, celdas);
+                //***** Renders ******//
+                nieve.renderNieve(elapsedTime);
+                clima.alternarClima();
+                piso.render();
+                skyBox.render();
+                renderizarObjetos(elapsedTime);
+            }
+            else if (interfaz.enControles)
+            {
+                interfaz.mostrarControles();
+
+                //Actualizacion velocidad viento cada 40 segundos
+                mapa.actualizar(objetosMapa, celdas);
+                //***** Renders ******//
+                nieve.renderNieve(elapsedTime);
+                clima.alternarClima();
+                piso.render();
+                skyBox.render();
+                renderizarObjetos(elapsedTime);
+            }
+            else
+            {
+                //***** Asignaciones ******//
+                Microsoft.DirectX.Direct3D.Device d3dDevice = GuiController.Instance.D3dDevice;
+
+                // tiempo += elapsedTime;
+                d3dDevice.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.Black, 1.0f, 0);
+
+                // Cargar variables de shader, por ejemplo el tiempo transcurrido.
+                efecto.SetValue("time", tiempo);
+
+
+                //****** Render de mapa ********//
+                //d3dDevice.BeginScene();
+
+                //***** Mouse *****//
+                //Puntero en el centro de la pantalla
+                Control focusWindows = GuiController.Instance.D3dDevice.CreationParameters.FocusWindow;
+                Cursor.Position = focusWindows.PointToScreen(new Point(focusWindows.Width / 2, focusWindows.Height / 2));
+                TgcD3dInput input = GuiController.Instance.D3dInput;
+                //Disparo
+                if (input.buttonDown(TgcD3dInput.MouseButtons.BUTTON_LEFT) && !personaje.muerto())
                 {
-                    arma.disparar(personaje, enemigos, objetosColisionables);
-                }
-                ultimoTiro = System.DateTime.Now.TimeOfDay.TotalMilliseconds;
-
-            }
-            //Zoom
-            else if (input.buttonDown(TgcD3dInput.MouseButtons.BUTTON_RIGHT))
-            {
-                if (System.DateTime.Now.TimeOfDay.TotalMilliseconds - ultimoZoom > 500)
-                {
-                    arma.hacerZoom();
-                    ultimoZoom = System.DateTime.Now.TimeOfDay.TotalMilliseconds;
-                }
-            }
-
-            //Actualizacion velocidad viento cada 40 segundos
-            mapa.actualizar(objetosMapa,celdas);
-
-            //***** Renders ******//
-            nieve.renderNieve(elapsedTime);
-            clima.alternarClima();
-            piso.render();
-            skyBox.render();
-            personaje.actualizar();
-
-            renderizarObjetos(elapsedTime);
-
-            enemigosMuertos.Clear();
-            foreach (Enemigo enemigo in enemigos)
-            {
-                enemigo.actualizar(elapsedTime, personaje, objetosColisionables, colisionaConFrustum(enemigo.enemigo.BoundingBox));
-                if (enemigo.murio)
-                {
-                    enemigosMuertos.Add(enemigo);
-                }
-            }
-            foreach (Enemigo enemigo in enemigosMuertos)
-            {
-                enemigos.Remove(enemigo);
-            }
-
-
-
-            foreach (TgcBox borde in bordes)
-            {
-                borde.render();
-            }
-
-
-
-
-            //Detectar colisiones de BoundingBox utilizando herramienta TgcCollisionUtils
-
-
-            foreach (Objeto objeto in objetosColisionables)
-            {
-                TgcCollisionUtils.BoxBoxResult result = TgcCollisionUtils.classifyBoxBox(camaraColision, objeto.colisionFisica);
-                if (result == TgcCollisionUtils.BoxBoxResult.Adentro || result == TgcCollisionUtils.BoxBoxResult.Atravesando)
-                {
-                    collide = true;
+                    if (System.DateTime.Now.TimeOfDay.TotalMilliseconds - ultimoTiro > 500)
+                    {
+                        arma.disparar(personaje, enemigos, objetosColisionables);
+                    }
+                    ultimoTiro = System.DateTime.Now.TimeOfDay.TotalMilliseconds;
 
                 }
+                //Zoom
+                else if (input.buttonDown(TgcD3dInput.MouseButtons.BUTTON_RIGHT))
+                {
+                    if (System.DateTime.Now.TimeOfDay.TotalMilliseconds - ultimoZoom > 500)
+                    {
+                        arma.hacerZoom();
+                        ultimoZoom = System.DateTime.Now.TimeOfDay.TotalMilliseconds;
+                    }
+                }
+
+                //Actualizacion velocidad viento cada 40 segundos
+                mapa.actualizar(objetosMapa, celdas);
+
+                //***** Renders ******//
+                nieve.renderNieve(elapsedTime);
+                clima.alternarClima();
+                piso.render();
+                skyBox.render();
+                personaje.actualizar();
+
+                renderizarObjetos(elapsedTime);
+
+                enemigosMuertos.Clear();
+                foreach (Enemigo enemigo in enemigos)
+                {
+                    enemigo.actualizar(elapsedTime, personaje, objetosColisionables, colisionaConFrustum(enemigo.enemigo.BoundingBox));
+                    if (enemigo.murio)
+                    {
+                        enemigosMuertos.Add(enemigo);
+                    }
+                }
+                foreach (Enemigo enemigo in enemigosMuertos)
+                {
+                    enemigos.Remove(enemigo);
+                }
+
+
+
+                foreach (TgcBox borde in bordes)
+                {
+                    borde.render();
+                }
+
+
+
+
+                //Detectar colisiones de BoundingBox utilizando herramienta TgcCollisionUtils
+
+
+                foreach (Objeto objeto in objetosColisionables)
+                {
+                    TgcCollisionUtils.BoxBoxResult result = TgcCollisionUtils.classifyBoxBox(camaraColision, objeto.colisionFisica);
+                    if (result == TgcCollisionUtils.BoxBoxResult.Adentro || result == TgcCollisionUtils.BoxBoxResult.Atravesando)
+                    {
+                        collide = true;
+
+                    }
+
+                }
+
+                //Si hubo colision, restaurar la posicion anterior
+                if (collide)
+                {
+                    Vector3 direccion = personaje.direccionEnLaQueMira();
+                    camara.moveLaCamara(direccion);
+                    collide = false;
+                }
+
+                arma.actualizar();
+
+
+                //d3dDevice.EndScene();
+                //GuiController.Instance.CurrentCamera = camaraAnterior;
+
+                if (interfaz.finJuego)
+                {
+                    if (interfaz.gano)
+                    {
+                        interfaz.ganoJuego();
+                    }
+                    else
+                    {
+                        interfaz.perdioJuego();
+                    }
+                    
+                }
 
             }
-
-            //Si hubo colision, restaurar la posicion anterior
-            if (collide)
-            {
-                Vector3 direccion = personaje.direccionEnLaQueMira();
-                camara.moveLaCamara(direccion);
-                collide = false;
-            }
-
-            arma.actualizar();
-
-
-            //d3dDevice.EndScene();
-            //GuiController.Instance.CurrentCamera = camaraAnterior;
+            
         } 
 
 

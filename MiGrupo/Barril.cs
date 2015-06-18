@@ -63,10 +63,10 @@ namespace AlumnoEjemplos.MiGrupo
             }
             else
             {
-                if (System.DateTime.Now.TimeOfDay.TotalMilliseconds - desdeQueExplota < 500)
+                if (System.DateTime.Now.TimeOfDay.TotalMilliseconds - desdeQueExplota < 300)
                 {
                     explosion.UVOffset = new Vector2(1f * totalTime, 3f * totalTime);
-                    explosion.Radius *= 1.25f;
+                    explosion.Radius *= 1.05f;
 
                     explosion.render();
                 }

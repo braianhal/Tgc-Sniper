@@ -49,7 +49,7 @@ namespace AlumnoEjemplos.MiGrupo
             miraZoomSprite.Position = new Vector2(0 , 0);
             
         }
-
+        
 
         public void actualizar()
         {

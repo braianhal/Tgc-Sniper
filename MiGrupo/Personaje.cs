@@ -17,14 +17,14 @@ namespace AlumnoEjemplos.MiGrupo
         Arma arma;
         TgcText2d textoVida;
         TgcText2d textoEnemigos;
-        TgcText2d textoFinJuego;
         TgcSprite atacadoSprite;
         TgcBoundingBox boundingCamara;
         Vector3 ultimaPos = GuiController.Instance.CurrentCamera.getPosition();
         int cantidadEnemigos = 20;
+        Interfaz interfaz;
 
 
-        public Personaje(Arma armaUsada, TgcBoundingBox camaraColision)
+        public Personaje(Arma armaUsada, TgcBoundingBox camaraColision,Interfaz unaInterfaz)
         {
             arma = armaUsada;
             boundingCamara = camaraColision;
@@ -47,13 +47,6 @@ namespace AlumnoEjemplos.MiGrupo
             textoEnemigos.Position = new Point(0, 30);
             textoEnemigos.changeFont(new System.Drawing.Font("TimesNewRoman", 25, FontStyle.Bold));
 
-            textoFinJuego = new TgcText2d();
-            textoFinJuego.Text = "VICTORIA";
-            textoFinJuego.Color = Color.MediumBlue;
-            textoFinJuego.Align = TgcText2d.TextAlign.CENTER;
-            textoFinJuego.Position = new Point(anchoPantalla/2, altoPantalla/2);
-            textoFinJuego.changeFont(new System.Drawing.Font("TimesNewRoman", 40, FontStyle.Bold));
-
 
 
             atacadoSprite = new TgcSprite();
@@ -62,6 +55,8 @@ namespace AlumnoEjemplos.MiGrupo
             int relacionAncho = GuiController.Instance.D3dDevice.Viewport.Width / 300;
             int relacionAlto = GuiController.Instance.D3dDevice.Viewport.Height / 300;
             atacadoSprite.Scaling = new Vector2(relacionAncho, relacionAlto);
+
+            interfaz = unaInterfaz;
         }
 
 
@@ -90,6 +85,7 @@ namespace AlumnoEjemplos.MiGrupo
             GuiController.Instance.CurrentCamera = nuevaCamara;
             GuiController.Instance.CurrentCamera.updateCamera();
             arma.eliminar();
+            interfaz.finJuego = true;
         }
         public void actualizar()
         {   
@@ -98,17 +94,12 @@ namespace AlumnoEjemplos.MiGrupo
             {
                 atacadoSprite.render();
             }
-            textoVida.render();
-            if (cantidadEnemigos > 0)
-            {
-                textoEnemigos.render();
-            }
             else
             {
-                textoFinJuego.render();
+                textoVida.render();
+                textoEnemigos.render();
             }
             GuiController.Instance.Drawer2D.endDrawSprite();
-
             boundingCamara.move(posicion() - boundingCamara.Position + new Vector3(-2, 0, -2));
             
         }
@@ -122,7 +113,11 @@ namespace AlumnoEjemplos.MiGrupo
         {
             cantidadEnemigos--;
             textoEnemigos.Text = "Restantes: " + cantidadEnemigos.ToString();
-            
+            if (cantidadEnemigos == 0)
+            {
+                interfaz.finJuego = true;
+                interfaz.gano = true;
+            }
         }
 
         public Vector3 posicion()

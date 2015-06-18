@@ -55,7 +55,6 @@ namespace AlumnoEjemplos.MiGrupo
 
         public void actualizar(float elapsedTime,Personaje personaje, List<Objeto> objetos, bool renderizar)
         {
-            enemigo.BoundingBox.render();
             switch(estado){
                 case Estado.PARADO:
                     enemigo.playAnimation("StandBy", true);

@@ -96,6 +96,7 @@
     <Compile Include="MiGrupo\CopoNieve.cs" />
     <Compile Include="MiGrupo\EjemploAlumno.cs" />
     <Compile Include="MiGrupo\Enemigo.cs" />
+    <Compile Include="MiGrupo\Interfaz.cs" />
     <Compile Include="MiGrupo\ManejoParticulas.cs" />
     <Compile Include="MiGrupo\Mapa.cs" />
     <Compile Include="MiGrupo\Nieve.cs" />
