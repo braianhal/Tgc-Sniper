@@ -23,7 +23,7 @@ namespace AlumnoEjemplos.MiGrupo
 
             this.setColor(Color.White);
 
-            this.tamanio = tipoTamanio * 3;
+            this.tamanio = tipoTamanio * 0.5f;
 
             Random varVelocidad = new Random(semilla);
             int variacionVel = varVelocidad.Next(60);

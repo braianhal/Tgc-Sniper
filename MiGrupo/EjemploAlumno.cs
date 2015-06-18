@@ -16,6 +16,7 @@ using TgcViewer.Utils;
 using TgcViewer.Utils.Shaders;
 using TgcViewer.Utils._2D;
 using TgcViewer.Utils.Particles;
+using AlumnoEjemplos.SRC.Renderman;
 
 namespace AlumnoEjemplos.MiGrupo
 {
@@ -47,6 +48,7 @@ namespace AlumnoEjemplos.MiGrupo
         Nieve nieve;
         ClimaNieve clima;
         float tiempo;
+        SoundManager sonido = new SoundManager();
 
 
         /// <summary>
@@ -168,7 +170,7 @@ namespace AlumnoEjemplos.MiGrupo
             //***** Asignaciones ******//
             Microsoft.DirectX.Direct3D.Device d3dDevice = GuiController.Instance.D3dDevice;
 
-            tiempo += elapsedTime;
+            //tiempo += elapsedTime;
             d3dDevice.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.Black, 1.0f, 0);
 
             // Cargar variables de shader, por ejemplo el tiempo transcurrido.
@@ -186,6 +188,7 @@ namespace AlumnoEjemplos.MiGrupo
             //Disparo
             if (input.buttonDown(TgcD3dInput.MouseButtons.BUTTON_LEFT) && !personaje.muerto())
             {
+                sonido.playSonidoDisparo();
                 if (System.DateTime.Now.TimeOfDay.TotalMilliseconds - ultimoTiro > 500)
                 {
                     arma.disparar(personaje, enemigos, objetosColisionables);
@@ -212,6 +215,14 @@ namespace AlumnoEjemplos.MiGrupo
             piso.render();
             skyBox.render();
             personaje.actualizar();
+            sonido.playSonidoAmbiente();
+
+            TgcD3dInput d3dInput = GuiController.Instance.D3dInput;
+
+            if (d3dInput.keyDown(Key.W) || d3dInput.keyDown(Key.A) || d3dInput.keyDown(Key.S) || d3dInput.keyDown(Key.D))
+            {
+               sonido.sonidoCaminando();
+            }
 
             renderizarObjetos(elapsedTime);
 

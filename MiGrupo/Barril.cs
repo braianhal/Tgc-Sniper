@@ -1,4 +1,5 @@
-﻿using Microsoft.DirectX;
+﻿using AlumnoEjemplos.SRC.Renderman;
+using Microsoft.DirectX;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -20,6 +21,7 @@ namespace AlumnoEjemplos.MiGrupo
         Vector3 escala = new Vector3(1.1f, 1.1f, 1.1f);
         Double desdeQueExplota;
         public bool destruir = false;
+        SoundManager sonido = new SoundManager();
 
 
         public Barril(Microsoft.DirectX.Vector3 moverA, TgcMesh meshBarril, Personaje unPersonaje)
@@ -33,6 +35,7 @@ namespace AlumnoEjemplos.MiGrupo
 
         public override void recibirDisparo(List<Enemigo> enemigos)
         {
+            
             foreach (Enemigo unEnemigo in (enemigos.FindAll(cercaDe)))
             {
                 unEnemigo.recibioExplosion(personaje);
@@ -67,7 +70,7 @@ namespace AlumnoEjemplos.MiGrupo
                 {
                     explosion.UVOffset = new Vector2(1f * totalTime, 3f * totalTime);
                     explosion.Radius *= 1.25f;
-
+                    sonido.playSonidoExplosion();
                     explosion.render();
                 }
                 else
