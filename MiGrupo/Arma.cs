@@ -15,6 +15,9 @@ namespace AlumnoEjemplos.MiGrupo
         public TgcSprite miraSprite;
         public TgcSprite miraZoomSprite;
         public TgcSprite armaSprite;
+        public TgcSprite balaSprite;
+        public TgcSprite vidaSprite;
+        public TgcSprite articSprite;
         bool eliminado = false;
         public TgcMesh armaMesh;
         public bool zoomActivado = false;
@@ -40,10 +43,27 @@ namespace AlumnoEjemplos.MiGrupo
             armaSprite.Scaling = new Vector2(0.55f, 0.55f);
             armaSprite.Position = new Vector2(anchoPantalla / 2 - 50, altoPantalla / 2  + 40);
 
+            balaSprite = new TgcSprite();
+            string pathTexturaBala = GuiController.Instance.AlumnoEjemplosMediaDir + "Sprites\\bala.png";
+            balaSprite.Texture = TgcTexture.createTexture(pathTexturaBala);
+            balaSprite.Scaling = new Vector2(0.5f, 0.5f);
+            balaSprite.Position = new Vector2(0,20);
+
+            vidaSprite = new TgcSprite();
+            string pathTexturaVida = GuiController.Instance.AlumnoEjemplosMediaDir + "Sprites\\life.png";
+            vidaSprite.Texture = TgcTexture.createTexture(pathTexturaVida);
+            vidaSprite.Scaling = new Vector2(0.25f, 0.25f);
+            vidaSprite.Position = new Vector2(10, altoPantalla-35);
+
+            articSprite = new TgcSprite();
+            string pathTexturaArtic = GuiController.Instance.AlumnoEjemplosMediaDir + "Sprites\\artic.png";
+            articSprite.Texture = TgcTexture.createTexture(pathTexturaArtic);
+            articSprite.Scaling = new Vector2(0.08f, 0.08f);
+            articSprite.Position = new Vector2(anchoPantalla - 90, 20);
 
 
             miraZoomSprite = new TgcSprite();
-            string pathTexturaMiraZoom = GuiController.Instance.AlumnoEjemplosMediaDir + "Sprites\\mira_zoom.png";
+            string pathTexturaMiraZoom = GuiController.Instance.AlumnoEjemplosMediaDir + "Sprites\\mira_zoom2.png";
             miraZoomSprite.Texture = TgcTexture.createTexture(pathTexturaMiraZoom);
             miraZoomSprite.Scaling = new Vector2(0.5f, 0.63f);
             miraZoomSprite.Position = new Vector2(0 , 0);
@@ -61,12 +81,14 @@ namespace AlumnoEjemplos.MiGrupo
                 {
                     miraSprite.render();
                     armaSprite.render();
+                    balaSprite.render();
+                    vidaSprite.render();
+                    articSprite.render();
                 }
                 else
                 {
                     miraZoomSprite.render();
                 }
-                
             }
             GuiController.Instance.Drawer2D.endDrawSprite();
         }

@@ -71,6 +71,8 @@ namespace AlumnoEjemplos.SRC.Renderman
             pasoIzq.loadSound(GuiController.Instance.AlumnoEjemplosMediaDir + "Sounds\\pasoIzq.wav");
             pasoDer.loadSound(GuiController.Instance.AlumnoEjemplosMediaDir + "Sounds\\pasoDer.wav");
             explosion.loadSound(GuiController.Instance.AlumnoEjemplosMediaDir + "Sounds\\explosionBarril.wav");
+            sonidoRecarga.loadSound(GuiController.Instance.AlumnoEjemplosMediaDir + "Sounds\\recarga.wav");
+            sinMunicion.loadSound(GuiController.Instance.AlumnoEjemplosMediaDir + "Sounds\\sinMunicion.wav");
 
             
             esPasoIzquierdo = true;

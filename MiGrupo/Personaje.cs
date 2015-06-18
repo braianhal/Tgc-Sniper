@@ -18,10 +18,12 @@ namespace AlumnoEjemplos.MiGrupo
         TgcText2d textoVida;
         TgcText2d textoEnemigos;
         TgcText2d textoFinJuego;
+        TgcText2d textoSinBalas;
         TgcSprite atacadoSprite;
         TgcBoundingBox boundingCamara;
         Vector3 ultimaPos = GuiController.Instance.CurrentCamera.getPosition();
         int cantidadEnemigos = 20;
+        int cantidadBalas = 10;
 
 
         public Personaje(Arma armaUsada, TgcBoundingBox camaraColision)
@@ -37,11 +39,11 @@ namespace AlumnoEjemplos.MiGrupo
             textoVida.Text = vida.ToString();
             textoVida.Color = Color.Green;
             textoVida.Align = TgcText2d.TextAlign.LEFT;
-            textoVida.Position = new Point(10, altoPantalla - 30);
+            textoVida.Position = new Point(50, altoPantalla - 40);
             textoVida.changeFont(new System.Drawing.Font("TimesNewRoman", 25, FontStyle.Bold));
 
             textoEnemigos = new TgcText2d();
-            textoEnemigos.Text = "Restantes: 20";
+            textoEnemigos.Text = "20";
             textoEnemigos.Color = Color.NavajoWhite;
             textoEnemigos.Align = TgcText2d.TextAlign.RIGHT;
             textoEnemigos.Position = new Point(0, 30);
@@ -53,6 +55,13 @@ namespace AlumnoEjemplos.MiGrupo
             textoFinJuego.Align = TgcText2d.TextAlign.CENTER;
             textoFinJuego.Position = new Point(anchoPantalla/2, altoPantalla/2);
             textoFinJuego.changeFont(new System.Drawing.Font("TimesNewRoman", 40, FontStyle.Bold));
+
+            textoSinBalas = new TgcText2d();
+            textoSinBalas.Text = "10";
+            textoSinBalas.Color = Color.NavajoWhite;
+            textoSinBalas.Align = TgcText2d.TextAlign.LEFT;
+            textoSinBalas.Position = new Point(60,30);
+            textoSinBalas.changeFont(new System.Drawing.Font("TimesNewRoman", 25, FontStyle.Bold));
 
 
 
@@ -94,6 +103,7 @@ namespace AlumnoEjemplos.MiGrupo
         public void actualizar()
         {   
             GuiController.Instance.Drawer2D.beginDrawSprite();
+            textoSinBalas.render();
             if (muerto())
             {
                 atacadoSprite.render();
@@ -118,10 +128,27 @@ namespace AlumnoEjemplos.MiGrupo
             return vida == 0;
         }
 
+        public void unaBalaMenos()
+        {
+            cantidadBalas--;
+            textoSinBalas.Text = cantidadBalas.ToString();
+        }
+
+        public bool tieneBalas()
+        {
+            return cantidadBalas > 0;
+        }
+
+        public void cargarBalas()
+        {
+            cantidadBalas = 10;
+            textoSinBalas.Text = cantidadBalas.ToString();
+        }
+
         public void unEnemigoMenos()
         {
             cantidadEnemigos--;
-            textoEnemigos.Text = "Restantes: " + cantidadEnemigos.ToString();
+            textoEnemigos.Text = cantidadEnemigos.ToString();
             
         }
 

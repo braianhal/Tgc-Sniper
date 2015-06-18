@@ -186,16 +186,24 @@ namespace AlumnoEjemplos.MiGrupo
             Cursor.Position = focusWindows.PointToScreen(new Point(focusWindows.Width / 2, focusWindows.Height / 2));
             TgcD3dInput input = GuiController.Instance.D3dInput;
             //Disparo
-            if (input.buttonDown(TgcD3dInput.MouseButtons.BUTTON_LEFT) && !personaje.muerto())
+
+            if (input.buttonDown(TgcD3dInput.MouseButtons.BUTTON_LEFT) && !personaje.tieneBalas())
+            {
+                sonido.playSonidoSinMunicion();
+            }
+
+            if (input.buttonDown(TgcD3dInput.MouseButtons.BUTTON_LEFT) && !personaje.muerto() && personaje.tieneBalas())
             {
                 sonido.playSonidoDisparo();
                 if (System.DateTime.Now.TimeOfDay.TotalMilliseconds - ultimoTiro > 500)
                 {
                     arma.disparar(personaje, enemigos, objetosColisionables);
+                    personaje.unaBalaMenos();
                 }
                 ultimoTiro = System.DateTime.Now.TimeOfDay.TotalMilliseconds;
 
             }
+
             //Zoom
             else if (input.buttonDown(TgcD3dInput.MouseButtons.BUTTON_RIGHT))
             {
@@ -218,6 +226,13 @@ namespace AlumnoEjemplos.MiGrupo
             sonido.playSonidoAmbiente();
 
             TgcD3dInput d3dInput = GuiController.Instance.D3dInput;
+
+            if (d3dInput.keyDown(Key.R))
+            {
+                sonido.playSonidoRecarga();
+                personaje.cargarBalas();
+            }
+
 
             if (d3dInput.keyDown(Key.W) || d3dInput.keyDown(Key.A) || d3dInput.keyDown(Key.S) || d3dInput.keyDown(Key.D))
             {
