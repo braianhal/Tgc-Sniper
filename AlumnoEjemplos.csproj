@@ -87,27 +87,27 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MiGrupo\Arbol.cs" />
-    <Compile Include="MiGrupo\Arma.cs" />
-    <Compile Include="MiGrupo\Barril.cs" />
-    <Compile Include="MiGrupo\CamaraSniper.cs" />
-    <Compile Include="MiGrupo\Celda.cs" />
-    <Compile Include="MiGrupo\ClimaNieve.cs" />
-    <Compile Include="MiGrupo\CopoNieve.cs" />
-    <Compile Include="MiGrupo\EjemploAlumno.cs" />
-    <Compile Include="MiGrupo\Enemigo.cs" />
-    <Compile Include="MiGrupo\Interfaz.cs" />
-    <Compile Include="MiGrupo\ManejoParticulas.cs" />
-    <Compile Include="MiGrupo\Mapa.cs" />
-    <Compile Include="MiGrupo\Nieve.cs" />
-    <Compile Include="MiGrupo\Objeto.cs" />
-    <Compile Include="MiGrupo\Particulas.cs" />
-    <Compile Include="MiGrupo\Pasto.cs" />
-    <Compile Include="MiGrupo\Personaje.cs" />
-    <Compile Include="MiGrupo\Randomizar.cs" />
-    <Compile Include="MiGrupo\SistemaDeParticulas.cs" />
-    <Compile Include="MiGrupo\SkyBoxSniper.cs" />
-    <Compile Include="MiGrupo\SoundManager.cs" />
+    <Compile Include="BEFS\src\Arbol.cs" />
+    <Compile Include="BEFS\src\Arma.cs" />
+    <Compile Include="BEFS\src\Barril.cs" />
+    <Compile Include="BEFS\src\CamaraSniper.cs" />
+    <Compile Include="BEFS\src\Celda.cs" />
+    <Compile Include="BEFS\src\ClimaNieve.cs" />
+    <Compile Include="BEFS\src\CopoNieve.cs" />
+    <Compile Include="BEFS\src\EjemploAlumno.cs" />
+    <Compile Include="BEFS\src\Enemigo.cs" />
+    <Compile Include="BEFS\src\Interfaz.cs" />
+    <Compile Include="BEFS\src\ManejoParticulas.cs" />
+    <Compile Include="BEFS\src\Mapa.cs" />
+    <Compile Include="BEFS\src\Nieve.cs" />
+    <Compile Include="BEFS\src\Objeto.cs" />
+    <Compile Include="BEFS\src\Particulas.cs" />
+    <Compile Include="BEFS\src\Pasto.cs" />
+    <Compile Include="BEFS\src\Personaje.cs" />
+    <Compile Include="BEFS\src\Randomizar.cs" />
+    <Compile Include="BEFS\src\SistemaDeParticulas.cs" />
+    <Compile Include="BEFS\src\SkyBoxSniper.cs" />
+    <Compile Include="BEFS\src\SoundManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
