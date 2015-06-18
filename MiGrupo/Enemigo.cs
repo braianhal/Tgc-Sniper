@@ -19,50 +19,35 @@ namespace AlumnoEjemplos.MiGrupo
         bool collide = false;
         Double ultimoAtaque = 0;
         Personaje personaje;
-        public TgcKeyFrameMesh enemigo;
+        public TgcSkeletalMesh enemigo;
         int vida;
+        public bool murio = false;
+        float velocidadRotacionCaida = 0.005f;
+        float aceleracionCaida = 0.005f;
+        Double desdeQueMurio = -1;
 
-        enum Estado {PERSIGUIENDO,PARADO,ATACANDO,MUERTO};
-        Estado estado = Estado.PERSIGUIENDO;
+        enum Estado {PERSIGUIENDO,PARADO,ATACANDO,MUERTO,ESQUIVANDO};
+        Estado estado = Estado.PARADO;
+        Objeto objetoConElQueChoco;
 
+        Vector3 direccionMovimiento;
 
         public Enemigo(Vector3 posicion,  Personaje elPersonaje)
         {
-            //Paths para archivo XML de la malla
-            string pathMesh = GuiController.Instance.ExamplesMediaDir + "KeyframeAnimations\\Robot\\Robot-TgcKeyFrameMesh.xml";
+            TgcSkeletalLoader skeletalLoader = new TgcSkeletalLoader();
 
-            //Path para carpeta de texturas de la malla
-            string mediaPath = GuiController.Instance.ExamplesMediaDir + "KeyframeAnimations\\Robot\\";
-
-            //Lista de animaciones disponibles
-            string[] animationList = new string[]{
-                "Parado",
-                "Caminando",
-                "Correr",
-                "PasoDerecho",
-                "PasoIzquierdo",
-                "Empujar",
-                "Patear",
-                "Pegar",
-                "Arrojar",
-            };
-
-            //Crear rutas con cada animacion
-            string[] animationsPath = new string[animationList.Length];
-            for (int i = 0; i < animationList.Length; i++)
-            {
-                animationsPath[i] = mediaPath + animationList[i] + "-TgcKeyFrameAnim.xml";
-            }
-
-            //Cargar mesh y animaciones
-            TgcKeyFrameLoader loader = new TgcKeyFrameLoader();
-            enemigo = loader.loadMeshAndAnimationsFromFile(pathMesh, mediaPath, animationsPath);
-
-            enemigo.playAnimation("Correr", true);
-            //enemigo = TgcBox.fromSize(posicion, new Vector3(10f, 10f, 20f), Color.Blue);
+            enemigo = skeletalLoader.loadMeshAndAnimationsFromFile(
+                    GuiController.Instance.ExamplesMediaDir + "SkeletalAnimations\\BasicHuman\\" + "CombineSoldier-TgcSkeletalMesh.xml",
+                    GuiController.Instance.ExamplesMediaDir + "SkeletalAnimations\\BasicHuman\\",
+                    new string[] { 
+                    GuiController.Instance.ExamplesMediaDir + "SkeletalAnimations\\BasicHuman\\Animations\\" + "StandBy-TgcSkeletalAnim.xml",
+                    GuiController.Instance.ExamplesMediaDir + "SkeletalAnimations\\BasicHuman\\Animations\\" + "Run-TgcSkeletalAnim.xml",
+                    GuiController.Instance.ExamplesMediaDir + "SkeletalAnimations\\BasicHuman\\Animations\\" + "HighKick-TgcSkeletalAnim.xml",
+                    GuiController.Instance.ExamplesMediaDir + "SkeletalAnimations\\BasicHuman\\Animations\\" + "Walk-TgcSkeletalAnim.xml"
+                });
 
             enemigo.Position = posicion;
-            enemigo.Scale = new Vector3(0.1f, 0.1f, 0.1f);
+            enemigo.Scale = new Vector3(0.25f, 0.25f, 0.25f);
             personaje = elPersonaje;
             vida = 100;
             enemigo.BoundingBox.scaleTranslate(enemigo.Position, new Vector3(0.25f,1,0.25f));
@@ -70,11 +55,21 @@ namespace AlumnoEjemplos.MiGrupo
 
         public void actualizar(float elapsedTime,Personaje personaje, List<Objeto> objetos, bool renderizar)
         {
+            enemigo.BoundingBox.render();
             switch(estado){
+                case Estado.PARADO:
+                    enemigo.playAnimation("StandBy", true);
+                    if ((personaje.posicion() - enemigo.Position).Length() < 250f)
+                    {
+                        estado = Estado.PERSIGUIENDO;
+                    }
+                    break;
                 case Estado.PERSIGUIENDO:
+                    enemigo.playAnimation("Run", true);
+                        
                         Vector3 lastPos = enemigo.Position;
                         Vector3 posicionPersonaje = personaje.posicion();
-                        Vector3 direccionMovimiento = posicionPersonaje-lastPos;
+                        direccionMovimiento = posicionPersonaje-lastPos;
                         direccionMovimiento.Y = 0;
                         direccionMovimiento.Normalize();
         
@@ -86,33 +81,74 @@ namespace AlumnoEjemplos.MiGrupo
             
                         //Detectar colisiones de BoundingBox utilizando herramienta TgcCollisionUtils
 
-
-                        foreach (Objeto objeto in objetos)
-                        {
-                            TgcCollisionUtils.BoxBoxResult result = TgcCollisionUtils.classifyBoxBox(enemigo.BoundingBox,objeto.colisionFisica);
-                            if (result == TgcCollisionUtils.BoxBoxResult.Adentro || result == TgcCollisionUtils.BoxBoxResult.Atravesando)
-                            {
-                                collide = true;
-                  
-                            }
-               
-                        }
+                        detectarColisiones( objetos);
+                        
 
                         //Si hubo colision, restaurar la posicion anterior
                         if (collide)
                         {
-                            enemigo.Position = lastPos;
+                            estado = Estado.ESQUIVANDO;
+                            float unAngulo = (float)Math.PI / 2;
+                            direccionMovimiento = new Vector3((float)Math.Cos(unAngulo + enemigo.Rotation.Y), 0, (float) Math.Sin(unAngulo + enemigo.Rotation.Y));
+                            direccionMovimiento.Normalize();
                             collide = false;
                         }
             
                         atacarAPersonaje(personaje);
-                        if (renderizar)
-                        {
-                            enemigo.animateAndRender();
-
-                        }
+                        
 
                     break;
+                case Estado.ESQUIVANDO:
+                    enemigo.playAnimation("Walk", true);
+
+
+                    if(objetoConElQueChoco == null){
+                        estado = Estado.PERSIGUIENDO;
+                    }
+                    else
+                    {
+                        TgcCollisionUtils.BoxBoxResult resultado = TgcCollisionUtils.classifyBoxBox(enemigo.BoundingBox, objetoConElQueChoco.colisionFisica);
+                        if (resultado == TgcCollisionUtils.BoxBoxResult.Adentro || resultado == TgcCollisionUtils.BoxBoxResult.Atravesando)
+                        {
+                            enemigo.move(direccionMovimiento * velocidad * elapsedTime);
+                            
+                        }
+                        else
+                        {
+
+                            estado = Estado.PERSIGUIENDO;
+                        }
+                    }
+                    
+                    break;
+                case Estado.MUERTO:
+                    
+                    if (enemigo.Rotation.Z > (Math.PI / 2))
+                    {
+                        if (desdeQueMurio < 0)
+                        {
+                            desdeQueMurio = System.DateTime.Now.TimeOfDay.TotalMilliseconds;
+                        }
+                        else
+                        {
+                            if (System.DateTime.Now.TimeOfDay.TotalMilliseconds - desdeQueMurio > 5000)
+                            {
+                                murio = true;
+                            }
+                        } 
+                        
+                    }
+                    else
+                    {
+                        enemigo.playAnimation("StandBy", false);
+                        enemigo.rotateZ(velocidadRotacionCaida * elapsedTime);
+                        velocidadRotacionCaida += aceleracionCaida;
+                    }
+                    break;
+            }
+            if (renderizar)
+            {
+                enemigo.animateAndRender();
             }
            
         }
@@ -120,20 +156,13 @@ namespace AlumnoEjemplos.MiGrupo
         private void atacarAPersonaje(Personaje personaje)
         {   
             float distanciaAPersonaje = (enemigo.Position - GuiController.Instance.CurrentCamera.getPosition()).Length();
-            if (distanciaAPersonaje < 12)
+            if (distanciaAPersonaje < 20)
             {
                 if (System.DateTime.Now.TimeOfDay.TotalMilliseconds - ultimoAtaque > 500)
                 {
                     ultimoAtaque = System.DateTime.Now.TimeOfDay.TotalMilliseconds;
                     personaje.sacarVida();
-                    if (Randomizar.Instance.NextDouble() > 0.5f)
-                    {
-                        enemigo.playAnimation("Correr", true);
-                    }
-                    else
-                    {
-                        enemigo.playAnimation("Pegar", true);
-                    }
+                    enemigo.playAnimation("HighKick", true);
                 }
             }
         }
@@ -146,6 +175,10 @@ namespace AlumnoEjemplos.MiGrupo
                 estado = Estado.MUERTO;
                 personaje.unEnemigoMenos();
             }
+            else
+            {
+                estado = Estado.PERSIGUIENDO;
+            }
         }
 
         internal void recibioExplosion(Personaje personaje)
@@ -153,7 +186,20 @@ namespace AlumnoEjemplos.MiGrupo
             vida = 0;
             estado = Estado.MUERTO;
             personaje.unEnemigoMenos();
+        }
 
+
+        private void detectarColisiones(List<Objeto> objetos)
+        {
+            foreach (Objeto objeto in objetos)
+            {
+                TgcCollisionUtils.BoxBoxResult result = TgcCollisionUtils.classifyBoxBox(enemigo.BoundingBox, objeto.colisionFisica);
+                if (result == TgcCollisionUtils.BoxBoxResult.Adentro || result == TgcCollisionUtils.BoxBoxResult.Atravesando)
+                {
+                    collide = true;
+                    objetoConElQueChoco = objeto;
+                }
+            }
         }
     }
 

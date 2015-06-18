@@ -18,7 +18,7 @@ namespace AlumnoEjemplos.MiGrupo
         Double ultimoCambioViento;
         Double tasaCambioViento = 1000 * 40;
         public float velocidadViento = 0.1f;
-        float maximaVelocidadViento = 0.5f;
+        float maximaVelocidadViento = 0.2f;
         ParticleEmitter nieve;
 
 
@@ -86,35 +86,6 @@ namespace AlumnoEjemplos.MiGrupo
 
 
             List<Enemigo> enemigos = new List<Enemigo>();
-            //Cargar malla original
-            //Paths para archivo XML de la malla
-            /*string pathMesh = GuiController.Instance.ExamplesMediaDir + "SkeletalAnimations\\Trooper\\Trooper-TgcSkeletalMesh.xml";
-
-            //Path para carpeta de texturas de la malla
-            string mediaPath = GuiController.Instance.ExamplesMediaDir + "SkeletalAnimations\\Trooper\\";
-
-            //Lista de animaciones disponibles
-            string[] animationList = new string[]{
-                "TrooperStandBy",
-                "TrooperWalk",
-                "TrooperRun",
-                "TrooperHighKick",
-            };
-
-            //Crear rutas con cada animacion
-            string[] animationsPath = new string[animationList.Length];
-            for (int i = 0; i < animationList.Length; i++)
-            {
-                animationsPath[i] = mediaPath + animationList[i] + "-TgcSkeletalAnim.xml";
-            }
-
-            //Cargar mesh y animaciones
-            TgcSkeletalLoader loader = new TgcSkeletalLoader();
-            TgcSkeletalMesh original = loader.loadMeshAndAnimationsFromFile(pathMesh, mediaPath, animationsPath);
-
-            //Crear esqueleto a modo Debug
-            original.buildSkletonMesh();*/
-
             
 
             for (int i = 0; i < cantidadEnemigos; i++)

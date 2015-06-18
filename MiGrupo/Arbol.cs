@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using TgcViewer;
 using TgcViewer.Utils.TgcGeometry;
 using TgcViewer.Utils.TgcSceneLoader;
 
@@ -23,6 +24,10 @@ namespace AlumnoEjemplos.MiGrupo
             colisionFisica.scaleTranslate(mesh.Position, new Vector3(0.08f, 1, 0.08f));
 
             ultimoCambio = System.DateTime.Now.TimeOfDay.TotalMilliseconds;
+
+
+            /*mesh.Effect = GuiController.Instance.Shaders.TgcMeshPointLightShader;
+            mesh.Technique = GuiController.Instance.Shaders.getTgcMeshTechnique(mesh.RenderType);*/
         }
 
         public override void render(float elapsedTime, float velocidadViento)

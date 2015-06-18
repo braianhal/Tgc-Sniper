@@ -59,7 +59,8 @@ namespace AlumnoEjemplos.MiGrupo
                 
                 if (!zoomActivado)
                 {
-                    miraSprite.render();  
+                    miraSprite.render();
+                    armaSprite.render();
                 }
                 else
                 {
@@ -67,7 +68,6 @@ namespace AlumnoEjemplos.MiGrupo
                 }
                 
             }
-            armaSprite.render();
             GuiController.Instance.Drawer2D.endDrawSprite();
         }
 

@@ -15,11 +15,13 @@ namespace AlumnoEjemplos.MiGrupo
         float radio = 20f;
         public Personaje personaje;
         public bool vivo = true;
-        TgcBox explosion;
+        float totalTime;
+        TgcSphere explosion = new TgcSphere();
         Vector3 escala = new Vector3(1.1f, 1.1f, 1.1f);
         Double desdeQueExplota;
 
-        public Barril(Microsoft.DirectX.Vector3 moverA, TgcMesh meshBarril,Personaje unPersonaje)
+
+        public Barril(Microsoft.DirectX.Vector3 moverA, TgcMesh meshBarril, Personaje unPersonaje)
         {
             mesh = meshBarril;
             mesh.move(moverA);
@@ -37,31 +39,39 @@ namespace AlumnoEjemplos.MiGrupo
 
             string texturePath = GuiController.Instance.AlumnoEjemplosMediaDir + "Texturas\\fuego.png";
             TgcTexture texturaExplosion = TgcTexture.createTexture(GuiController.Instance.D3dDevice, texturePath);
-            
+
             //explosion = new TgcSphere(10f, texturaExplosion, mesh.Position);
-            explosion = TgcBox.fromSize(mesh.Position, new Vector3(1f, 1f, 1f), texturaExplosion);
+
             explosion.AlphaBlendEnable = true;
             explosion.updateValues();
+            explosion.Position = mesh.Position;
+            explosion.Radius = 12.5f;
+            explosion.setTexture(texturaExplosion);
             desdeQueExplota = System.DateTime.Now.TimeOfDay.TotalMilliseconds;
             vivo = false;
         }
 
-        public override void render(float elapsedTime,float velocidadViento)
+        public override void render(float elapsedTime, float velocidadViento)
         {
-            if(vivo){
+
+            totalTime += GuiController.Instance.ElapsedTime;
+
+            if (vivo)
+            {
                 this.mesh.render();
             }
             else
             {
-                if (System.DateTime.Now.TimeOfDay.TotalMilliseconds - desdeQueExplota < 1000)
+                if (System.DateTime.Now.TimeOfDay.TotalMilliseconds - desdeQueExplota < 500)
                 {
-                    explosion.Size = explosion.Size + new Vector3(0.5f, 0.5f, 0.5f);
-                    explosion.updateValues();
+                    explosion.UVOffset = new Vector2(1f * totalTime, 3f * totalTime);
+                    explosion.Radius *= 1.25f;
+
                     explosion.render();
                 }
                 //explosion.Scale = escala;
             }
-            
+
         }
 
         private bool cercaDe(Enemigo enemigo)

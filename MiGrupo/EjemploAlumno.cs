@@ -43,6 +43,7 @@ namespace AlumnoEjemplos.MiGrupo
         Mapa mapa;
         bool collide = false;
         TgcBoundingBox camaraColision;
+        List<Enemigo> enemigosMuertos = new List<Enemigo>();
 
         /// <summary>
         /// Categoría a la que pertenece el ejemplo.
@@ -191,17 +192,27 @@ namespace AlumnoEjemplos.MiGrupo
 
             renderizarObjetos(elapsedTime);
 
-
+            enemigosMuertos.Clear();
             foreach (Enemigo enemigo in enemigos)
             {
                 enemigo.actualizar(elapsedTime, personaje, objetosColisionables, colisionaConFrustum(enemigo.enemigo.BoundingBox));
+                if (enemigo.murio)
+                {
+                    enemigosMuertos.Add(enemigo);
+                }
             }
+            foreach(Enemigo enemigo in enemigosMuertos){
+                enemigos.Remove(enemigo);
+            }
+
             foreach (TgcBox borde in bordes)
             {
                 borde.render();
             }
 
 
+            
+            
             //Detectar colisiones de BoundingBox utilizando herramienta TgcCollisionUtils
 
 
@@ -240,10 +251,6 @@ namespace AlumnoEjemplos.MiGrupo
             arma.actualizar();
 
 
-
-
-
-
             //d3dDevice.EndScene();
             //GuiController.Instance.CurrentCamera = camaraAnterior;
         }
@@ -269,78 +276,50 @@ namespace AlumnoEjemplos.MiGrupo
 
         private void renderizarObjetos(float elapsedTime)
         {
+            List<Objeto> yaRenderizados = new List<Objeto>();
             foreach(Celda celda in celdas){
                 if (colisionaConFrustum(celda.cajaColision))
                 {
                     foreach (Objeto objeto in celda.objetos)
                     {
-                        if (colisionaConFrustum(objeto.mesh.BoundingBox))
+                        if (!yaRenderizados.Contains(objeto))
                         {
-                            objeto.render(elapsedTime, mapa.velocidadViento);
-                        }
-                    }
-                }
-            }
-        }
-
-        /*private List<Celda> crearGrilla(Vector2 puntoInicial, int iteracion,List<Celda> lasCeldas)
-        {
-            float desplazamiento = (float)Math.Pow(10,iteracion);
-            for (int i = 0; i < 2; i++)
-            {
-                for (int j = 0; j < 2; j++)
-                {
-                    Vector3 posicion = new Vector3(desplazamiento * i + puntoInicial.X, 0, desplazamiento * i + puntoInicial.Y);
-                    Celda estaCelda;
-                    lasCeldas.Add(estaCelda = new Celda(posicion,desplazamiento));
-                    if (iteracion == 1)
-                    {
-                        foreach (TgcMesh objeto in objetosMapa)
-                        {   
-                            TgcCollisionUtils.BoxBoxResult resultado = (TgcCollisionUtils.classifyBoxBox(objeto.BoundingBox,estaCelda.cajaColision));
-                            if (resultado == TgcCollisionUtils.BoxBoxResult.Adentro || resultado == TgcCollisionUtils.BoxBoxResult.Atravesando)
+                            if (colisionaConFrustum(objeto.mesh.BoundingBox))
                             {
-                                estaCelda.agregarObjeto(objeto);
+                                if (((objeto.mesh.Position - personaje.posicion()).Length()) < 1000)
+                                {
+                                    objeto.render(elapsedTime, mapa.velocidadViento);
+                                    yaRenderizados.Add(objeto);
+                                }
+                                
                             }
                         }
-                    }
-                    else
-                    {
-                        estaCelda.agregarCeldas(crearGrilla(new Vector2(posicion.X, posicion.Z), iteracion - 1, estaCelda.celdas));
+                        
                     }
                 }
             }
-            return lasCeldas;
-        }*/
+            yaRenderizados.Clear();
+        }
 
         private void crearGrilla()
         {
             int valor = 8;
             float desplazamiento = 2000 / valor;
             Vector2 inicial = new Vector2(-1000,-1000);
-            List<Objeto> objetosRestantes = new List<Objeto>();
-            objetosRestantes = objetosMapa;
-            List<Objeto> aEliminar = new List<Objeto>();
             for (int i = 0; i < valor; i++)
             {
                 for (int j = 0; j < valor; j++)
                 {
                     Celda estaCelda;
                     celdas.Add(estaCelda = new Celda(new Vector3(i * desplazamiento + inicial.X, 0, j * desplazamiento + inicial.Y), desplazamiento));
-                    foreach (Objeto objeto in objetosRestantes)
+                    foreach (Objeto objeto in objetosMapa)
                     {
                         TgcCollisionUtils.BoxBoxResult resultado = (TgcCollisionUtils.classifyBoxBox(objeto.mesh.BoundingBox, estaCelda.cajaColision));
                         if (resultado == TgcCollisionUtils.BoxBoxResult.Adentro || resultado == TgcCollisionUtils.BoxBoxResult.Atravesando)
                         {
                             estaCelda.agregarObjeto(objeto);
-                            aEliminar.Add(objeto);
                         }
                     }
-                    foreach(Objeto objeto in aEliminar)
-                    {
-                        objetosRestantes.Remove(objeto);
-                    }
-                    aEliminar.Clear();
                 }
             }
         }
