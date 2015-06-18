@@ -38,15 +38,16 @@ namespace AlumnoEjemplos.MiGrupo
             armaSprite = new TgcSprite();
             string pathTexturaArma = GuiController.Instance.AlumnoEjemplosMediaDir + "Sprites\\" + arma + ".png";
             armaSprite.Texture = TgcTexture.createTexture(pathTexturaArma);
-            armaSprite.Position = new Vector2(anchoPantalla / 2, altoPantalla / 2);
+            armaSprite.Scaling = new Vector2(0.55f, 0.55f);
+            armaSprite.Position = new Vector2(anchoPantalla / 2 - 50, altoPantalla / 2  + 40);
 
 
 
             miraZoomSprite = new TgcSprite();
             string pathTexturaMiraZoom = GuiController.Instance.AlumnoEjemplosMediaDir + "Sprites\\mira_zoom.png";
             miraZoomSprite.Texture = TgcTexture.createTexture(pathTexturaMiraZoom);
-            miraZoomSprite.Scaling = new Vector2(3, 3);
-            miraZoomSprite.Position = new Vector2(anchoPantalla / 2 - (miraZoomSprite.Texture.Width*3) / 2, altoPantalla / 2 - (miraZoomSprite.Texture.Height*3) / 2);
+            miraZoomSprite.Scaling = new Vector2(0.5f, 0.63f);
+            miraZoomSprite.Position = new Vector2(0 , 0);
             
         }
 
@@ -59,7 +60,8 @@ namespace AlumnoEjemplos.MiGrupo
                 
                 if (!zoomActivado)
                 {
-                    miraSprite.render();  
+                    miraSprite.render();
+                    armaSprite.render();
                 }
                 else
                 {
@@ -67,7 +69,6 @@ namespace AlumnoEjemplos.MiGrupo
                 }
                 
             }
-            armaSprite.render();
             GuiController.Instance.Drawer2D.endDrawSprite();
         }
 
