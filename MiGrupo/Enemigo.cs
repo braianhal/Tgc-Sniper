@@ -32,12 +32,12 @@ namespace AlumnoEjemplos.MiGrupo
 
         Vector3 direccionMovimiento;
 
-        public Enemigo(Vector3 posicion,  Personaje elPersonaje)
+        public Enemigo(Vector3 posicion,  Personaje elPersonaje,bool gigante)
         {
             TgcSkeletalLoader skeletalLoader = new TgcSkeletalLoader();
 
             enemigo = skeletalLoader.loadMeshAndAnimationsFromFile(
-                    GuiController.Instance.ExamplesMediaDir + "SkeletalAnimations\\BasicHuman\\" + "CombineSoldier-TgcSkeletalMesh.xml",
+                    GuiController.Instance.ExamplesMediaDir + "SkeletalAnimations\\BasicHuman\\" + "CS_Arctic-TgcSkeletalMesh.xml",
                     GuiController.Instance.ExamplesMediaDir + "SkeletalAnimations\\BasicHuman\\",
                     new string[] { 
                     GuiController.Instance.ExamplesMediaDir + "SkeletalAnimations\\BasicHuman\\Animations\\" + "StandBy-TgcSkeletalAnim.xml",
@@ -47,9 +47,23 @@ namespace AlumnoEjemplos.MiGrupo
                 });
 
             enemigo.Position = posicion;
-            enemigo.Scale = new Vector3(0.25f, 0.25f, 0.25f);
+            
             personaje = elPersonaje;
-            vida = 100;
+            
+            
+
+            if (gigante)
+            {
+                vida = 500;
+                velocidad = 10f + (float)Randomizar.Instance.NextDouble() * 20;
+                enemigo.Scale = new Vector3(0.5f, 0.5f, 0.5f);
+            }
+            else
+            {
+                velocidad = 25f + (float)Randomizar.Instance.NextDouble() * 30;
+                vida = 100;
+                enemigo.Scale = new Vector3(0.25f, 0.25f, 0.25f);
+            }
             enemigo.BoundingBox.scaleTranslate(enemigo.Position, new Vector3(0.25f,1,0.25f));
         }
 

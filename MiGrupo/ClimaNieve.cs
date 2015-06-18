@@ -16,8 +16,7 @@ namespace AlumnoEjemplos.MiGrupo
 
         public ClimaNieve(Nieve nieve)
         {
-            //modifiers que activa la alternacion de climas
-            GuiController.Instance.Modifiers.addBoolean("Alternar Viento", "activar", true);
+
 
             tormenta = nieve;
             inicioClimaActual = DateTime.Now.TimeOfDay;
@@ -38,7 +37,7 @@ namespace AlumnoEjemplos.MiGrupo
                 }
                 else
                 {
-                    if (climaActual == 1 && (Boolean)GuiController.Instance.Modifiers["Alternar Viento"])
+                    if (climaActual == 1)
                     {
                         tormenta.moverNube(-800);
                         //hacer el cambio de las variables

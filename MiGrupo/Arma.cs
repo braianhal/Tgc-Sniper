@@ -18,14 +18,12 @@ namespace AlumnoEjemplos.MiGrupo
         bool eliminado = false;
         public TgcMesh armaMesh;
         public bool zoomActivado = false;
+        Vector2 ultimaPosicion;
+        bool disparando = false;
+        Double disparoEn;
 
         public Arma(string arma,string mira)
         {
-            /*TgcSceneLoader loader = new TgcSceneLoader();
-            TgcScene scene = loader.loadSceneFromFile(GuiController.Instance.AlumnoEjemplosMediaDir + "Modelos\\Sniper_Arma\\arma-TgcScene.xml");
-            armaMesh = scene.Meshes[1];
-            armaMesh.Scale = new Vector3(10, 10, 10);
-            armaMesh.Position = new Vector3(5, 0, 5);*/
 
             int anchoPantalla = GuiController.Instance.D3dDevice.Viewport.Width;
             int altoPantalla = GuiController.Instance.D3dDevice.Viewport.Height;
@@ -59,12 +57,33 @@ namespace AlumnoEjemplos.MiGrupo
                 
                 if (!zoomActivado)
                 {
+                    if (disparando)
+                    {
+                     Double tiempo =   System.DateTime.Now.TimeOfDay.TotalMilliseconds; 
+                        if ( tiempo - disparoEn < 100)
+                        {
+                            armaSprite.Position = armaSprite.Position + new Vector2(10f, 0);
+                            
+                        }
+                        else if (tiempo - disparoEn < 200)
+                        {
+                            armaSprite.Position = armaSprite.Position + new Vector2(-18f, 0);
+                        }
+                        else
+                        {
+                            disparando = false;
+                            armaSprite.Position = ultimaPosicion;
+                        }
+                        
+                    }
                     miraSprite.render();
                     armaSprite.render();
                 }
                 else
                 {
-                    miraZoomSprite.render();
+
+                        miraZoomSprite.render();
+                    
                 }
                 
             }
@@ -83,6 +102,9 @@ namespace AlumnoEjemplos.MiGrupo
             Vector3 puntoImpacto;
             Vector3 menorPuntoImpacto = new Vector3(10000,10000,10000);
             Objeto objetoQueRecibeDisparo = null;
+            ultimaPosicion = armaSprite.Position;
+            disparoEn = System.DateTime.Now.TimeOfDay.TotalMilliseconds;
+            disparando = true;
 
             foreach(Enemigo enemigo in enemigos){
                 if (TgcCollisionUtils.intersectRayAABB(disparo, enemigo.enemigo.BoundingBox, out puntoImpacto))
@@ -112,7 +134,7 @@ namespace AlumnoEjemplos.MiGrupo
             }
             else if(objetoQueRecibeDisparo != null)
             {
-                objetoQueRecibeDisparo.recibirDisparo(enemigos);
+                objetoQueRecibeDisparo.recibirDisparo(enemigos,personaje);
             }
         }
 

@@ -13,7 +13,7 @@ namespace AlumnoEjemplos.MiGrupo
 {
     class Personaje
     {   
-        int vida = 100;
+        public int vida = 100;
         Arma arma;
         TgcText2d textoVida;
         TgcText2d textoEnemigos;
@@ -78,7 +78,7 @@ namespace AlumnoEjemplos.MiGrupo
             
         }
 
-        private void morir()
+        public void morir()
         {
             CamaraSniper nuevaCamara = (CamaraSniper)GuiController.Instance.CurrentCamera;
             nuevaCamara.MovementSpeed = 0f;

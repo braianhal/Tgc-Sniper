@@ -107,6 +107,7 @@
     <Compile Include="MiGrupo\Randomizar.cs" />
     <Compile Include="MiGrupo\SistemaDeParticulas.cs" />
     <Compile Include="MiGrupo\SkyBoxSniper.cs" />
+    <Compile Include="MiGrupo\SoundManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -39,7 +39,7 @@ namespace AlumnoEjemplos.MiGrupo
             titulo.Position = new Vector2(anchoPantalla / 2 - titulo.Texture.Width / 2, altoPantalla / 2 - titulo.Texture.Height / 2);
 
             controles = new TgcSprite();
-            pathTextura = GuiController.Instance.AlumnoEjemplosMediaDir + "Interfaz\\controles2.png";
+            pathTextura = GuiController.Instance.AlumnoEjemplosMediaDir + "Interfaz\\controles1.png";
             controles.Texture = TgcTexture.createTexture(pathTextura);
             controles.Position = new Vector2(anchoPantalla / 2 - controles.Texture.Width / 2, altoPantalla / 2 - controles.Texture.Height / 2);
 
@@ -78,7 +78,6 @@ namespace AlumnoEjemplos.MiGrupo
             {
                 GuiController.Instance.CurrentCamera = camara;
                 enControles = false;
-                
             }
 
             GuiController.Instance.Drawer2D.beginDrawSprite();

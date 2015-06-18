@@ -85,23 +85,32 @@ namespace AlumnoEjemplos.MiGrupo
         public static List<Enemigo> crearEnemigos(int cantidadEnemigos,Personaje personaje, string tipo)
         {
 
-            //************************ VER *****************//
+            float xAleatorio ;
+            float yAleatorio;
 
 
             List<Enemigo> enemigos = new List<Enemigo>();
             
 
-            for (int i = 0; i < cantidadEnemigos; i++)
+            for (int i = 0; i < cantidadEnemigos-1; i++)
             {
-                float xAleatorio = (float)(Randomizar.Instance.NextDouble() * 2000 - 1000);
-                float yAleatorio = (float)(Randomizar.Instance.NextDouble() * 2000 - 1000);
+                xAleatorio = (float)(Randomizar.Instance.NextDouble() * 2000 - 1000);
+                yAleatorio = (float)(Randomizar.Instance.NextDouble() * 2000 - 1000);
                 while (xAleatorio < 50 || yAleatorio < 50)
                 {
                     xAleatorio = (float)(Randomizar.Instance.NextDouble() * 2000 - 1000);
                     yAleatorio = (float)(Randomizar.Instance.NextDouble() * 2000 - 1000);
                 }
-                enemigos.Add(new Enemigo(new Vector3(xAleatorio, 0, yAleatorio),  personaje));
+                enemigos.Add(new Enemigo(new Vector3(xAleatorio, 0, yAleatorio),  personaje,false));
             }
+            xAleatorio = (float)(Randomizar.Instance.NextDouble() * 2000 - 1000);
+            yAleatorio = (float)(Randomizar.Instance.NextDouble() * 2000 - 1000);
+            while (xAleatorio < 50 || yAleatorio < 50)
+            {
+                xAleatorio = (float)(Randomizar.Instance.NextDouble() * 2000 - 1000);
+                yAleatorio = (float)(Randomizar.Instance.NextDouble() * 2000 - 1000);
+            }
+            enemigos.Add(new Enemigo(new Vector3(xAleatorio, 0, yAleatorio), personaje, true));
             return enemigos;
         }
 

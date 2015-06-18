@@ -223,7 +223,31 @@ namespace AlumnoEjemplos.MiGrupo
 
         public void moveLaCamara(Vector3 direccionEnLaQueMira)
         {
-            move(direccionEnLaQueMira * -1, new Vector3(2, 0, 2));
+
+            TgcD3dInput d3dInput = GuiController.Instance.D3dInput;
+
+            if (d3dInput.keyDown(Key.S))
+            {
+                move(direccionEnLaQueMira, new Vector3(2, 0, 2));
+            }
+
+            if (d3dInput.keyDown(Key.W))
+            {
+                move(direccionEnLaQueMira * -1, new Vector3(2, 0, 2));
+            }
+
+            if (d3dInput.keyDown(Key.A))
+            {
+                Vector3 direccionado = new Vector3(direccionEnLaQueMira.Z,0,direccionEnLaQueMira.X);
+                move(direccionado, new Vector3(2, 0, 2));
+            }
+
+            if (d3dInput.keyDown(Key.D))
+            {
+                Vector3 direccionado = new Vector3(direccionEnLaQueMira.Z*-1, 0, direccionEnLaQueMira.X);
+                move(direccionado, new Vector3(2, 0, 2));
+            }
+
         }
 
         private void setCamera(Vector3 eye, Vector3 target, Vector3 up)

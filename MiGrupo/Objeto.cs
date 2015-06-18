@@ -18,7 +18,7 @@ namespace AlumnoEjemplos.MiGrupo
             this.mesh.render();
         }
 
-        public virtual void recibirDisparo(List<Enemigo> enemigos)
+        public virtual void recibirDisparo(List<Enemigo> enemigos,Personaje personaje)
         {
 
         }

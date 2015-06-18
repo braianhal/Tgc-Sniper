@@ -42,7 +42,7 @@ namespace AlumnoEjemplos.MiGrupo
             base.render(elapsedTime,velocidadViento);
         }
 
-        public override void recibirDisparo(List<Enemigo> enemigos)
+        public override void recibirDisparo(List<Enemigo> enemigos,Personaje personaje)
         {
 
         }
